@@ -1,0 +1,104 @@
+@font-face {
+  font-family: "Roboto";
+  font-weight: 300;
+  font-style: normal;
+  src: url('/static/fonts/Roboto-Light.ttf') format('truetype')
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url('/static/fonts/Roboto-Regular.ttf') format('truetype')
+}
+
+h1 {
+  font-family: 'Roboto', monospace;
+  text-align: center;
+  color: $primarycolor;
+  font-size: 33px;
+  font-weight: 100;
+  margin: 50px 0 75px 0;
+  padding-bottom: 25px;
+  border-bottom: 1px solid black;
+}
+
+h2 {
+  color: $primarycolor;
+  font-family: 'Roboto', monospace;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+}
+
+h3 {
+  font-family: 'Roboto', monospace;
+  color: $primarycolor;
+  font-size: 16px;
+  margin-top: 13px;
+  letter-spacing: 0.5px;
+  font-weight: $light;
+}
+
+p {
+  font-size: 15px;
+  line-height: 22px;
+  color: $primarycolor;
+  margin-bottom: 5px;
+}
+
+a {
+  color: $primarycolor;
+
+  &:hover {
+    color: black;
+  }
+}
+
+span.head_title {
+  font-family: 'Nanum Gothic Coding', monospace;
+  text-transform: uppercase;
+  color: $primarycolor;
+  display: inline-block;
+}
+
+.error {
+  color: $error;
+  font-family: 'Nanum Gothic Coding', monospace;
+}
+
+.warning {
+  color: $warning;
+  font-family: 'Nanum Gothic Coding', monospace;
+}
+
+.upper {
+  text-transform: uppercase;
+}
+
+.click {
+  cursor: pointer;
+  &:after {
+    @include transition(all .3s ease);
+    font-family: 'feather' !important;
+    content: "\e843";
+    position: absolute;
+    right: -20px;
+    top: 5px;
+    line-height: 1;
+  }
+    &:hover {
+      &:after {
+        @include transform(rotate(-90deg));
+      }
+  }
+}
+
+ul.overview {
+  text-align: center;
+  padding: 0;
+
+  li {
+    font-size: 13px;
+    list-style: none;
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+}

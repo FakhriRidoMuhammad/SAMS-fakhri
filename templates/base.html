@@ -1,0 +1,25 @@
+<!doctype html>
+<head>
+    <title>{{ title }} - beemo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="/settings">Settings <i class="icon icon-settings"></i></a></li>
+        <li><a href="/reset">Calibrate Scale <i class="icon icon-repeat"></i></a></li>
+    </ul>
+</nav>
+<div class="content">
+    <section id="app" v-cloak>
+        {% block content %} {% endblock %}
+    </section>
+</div>
+<footer>
+    <div class="logoWrapper">
+        <img src="{{ url_for('static', filename='images/bee-thing.png') }}" alt="Synopsis Frontend Test">
+    </div>
+</footer>
+<script async src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>

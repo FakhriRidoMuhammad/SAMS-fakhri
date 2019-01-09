@@ -1,0 +1,16 @@
+footer {
+  font-family: 'Nanum Gothic Coding', monospace;
+  background: $white;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 13px 0;
+  text-align: center;
+  div.logoWrapper {
+    display: inline-block;
+    max-width: 50px;
+    line-height: 0;
+    vertical-align: bottom;
+  }
+}

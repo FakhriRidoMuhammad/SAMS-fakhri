@@ -1,0 +1,73 @@
+body {
+  font-family: 'Roboto', monospace;
+  font-weight: 300;
+}
+
+%button {
+  display: inline-block;
+  border: 2px solid black;
+  padding: 5px 16px;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1;
+
+  &:hover {
+    border: 1px solid $darkGray;
+  }
+}
+
+div.content {
+  padding: 25px;
+  width: 80%;
+  margin: 0 auto;
+  opacity: 1;
+  text-align: center;
+}
+
+a.button {
+  @extend %button;
+  margin-top: 25px;
+}
+
+div.formWrapper {
+  display: block;
+  margin: $standard-margin auto;
+  max-width: 320px;
+}
+
+nav.breadcrumb {
+  margin-top: -6px;
+  a.iconLink {
+    text-decoration: none;
+    i {
+      font-size: 30px;
+    }
+  }
+}
+@include keyframes(in) {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+[v-cloak] { display: none; }
+
+.mt-50 {
+  display: block;
+  margin-top: 50px !important;
+}
+
+.mb-standard {
+  margin-bottom: $standard-margin;
+}
+
+.mt-25 {
+  display: block;
+  margin-top: 25px !important;
+}

@@ -1,0 +1,23 @@
+  input[type="text"] {
+    @include transition(all .5s ease);
+    color: $primarycolor;
+    width: calc(100% - 10px);
+    padding: 5px;
+    background-color: $white;
+    border: 2px solid $black;
+    -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0);
+    -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0);
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0);
+    &:focus {
+      outline: none;
+      -webkit-box-shadow: 4px 6px 21px 0px rgba(0,0,0,0.75);
+      -moz-box-shadow: 4px 6px 21px 0px rgba(0,0,0,0.75);
+      box-shadow: 4px 6px 21px 0px rgba(0,0,0,0.75);
+    }
+  }
+
+  button {
+    @extend %button;
+    cursor: pointer;
+    margin-top: $standard-margin;
+  }
