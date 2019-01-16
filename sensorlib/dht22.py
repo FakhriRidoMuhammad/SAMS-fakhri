@@ -1,5 +1,6 @@
 import Adafruit_DHT
 
+
 class DHT22:
     def __init__(self, pin):
         self.pin = pin
@@ -15,4 +16,4 @@ class DHT22:
             return self.data
 
         except Exception as e:
-            print(e)
+            print("DHT22 sensor connected? : {0}".format(e))
