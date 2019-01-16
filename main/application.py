@@ -22,10 +22,31 @@ class Application:
         self.dataset = dict()
 
     def take_dataset(self):
+        self.dataset = ""
         self.dataset = self.data.get_dataset()
 
     def start(self):
         while True:
-            time.sleep(60 * 30)
+            print("take dataset...")
+            self.take_dataset()
+
+            if self.log.has_log_files():
+                print("has log files...")
+                self.log.post_log_files(self.dataset)
+            else:
+                response = self.api.post_dataset(self.dataset)
+                if response:
+                    print("Dataset posted!")
+                else:
+                    print ("Dataset posting failed. Statuscode: {0}".format(response))
+                    self.is_data_posted = False  # reset is data posted
+                    print("log dataset")
+                    self.log.insert(self.dataset)  # log dataset
+                    while not self.is_data_posted:
+                        print("try to post dataset...")
+                        self.is_data_posted = self.api.post_dataset(self.dataset)
+                        time.sleep(5)
+            print("wait 10 seconds...")
+            time.sleep(10)
 
 

@@ -4,6 +4,7 @@ from config.interval_config import IntervalConfig
 from config.sensor_config import SensorConfig
 from numpy import median
 import time
+from datetime import datetime
 config_file = '/home/pi/config/config.ini'
 
 
@@ -11,7 +12,7 @@ class Dataset:
     def __init__(self):
         self.config = IntervalConfig(config_file)
         self.sensor_config = SensorConfig(config_file)
-        self.dht22_pin = self.sensor_config.dht22
+        self.dht22_pin = self.sensor_config.dht22["sensor_1"]
         self.dht22 = DHT22(self.dht22_pin)
         self.scale = Scale()
         self.median_interval = 0
@@ -45,6 +46,34 @@ class Dataset:
         del self.hum[:]
         del self.weight[:]
 
-        self.dataset = {"temp": self.median_temp, "hum": self.median_hum, "weight": self.median_weight}
+        now = datetime.now()
+        now = now.strftime("%Y-%m-%dT%H:%M:%S")
+
+        self.dataset = [
+            {
+                "sourceId": "dht22-temperature-DE-37139-[97834523476534654]",
+                "values": [
+                    {"ts": str(now), "value": str(self.median_temp)},
+                ]
+            },
+            {
+                "sourceId": "dht22-humidity-DE-37139-[97834523476534654]",
+                "values": [
+                    {"ts": str(now), "value": str(self.median_hum)},
+                ]
+            },
+            {
+                "sourceId": "audio-data-DE-37139-[97834523476534654]",
+                "values": [
+                    {"ts": str(now), "value": str([1, 2, 3, 4, 500])}
+                ]
+            },
+            {
+                "sourceId": "scale-DE-37139-[97834523476534654]",
+                "values": [
+                    {"ts": str(now), "value": str(self.median_weight)}
+                ]
+            }
+        ]
 
         return self.dataset

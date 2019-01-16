@@ -10,6 +10,7 @@ import datetime
 
 app = Flask(__name__)
 application = Application()
+application.start()
 scale = Scale()
 dataset = Dataset()
 #wire = DS1820("28-000008e2f080")
@@ -57,7 +58,6 @@ def config_scale():
 
 @app.route('/api')
 def summary():
-    application.post_logfile()
     json_data = [{"test": "test"}]
     return jsonify(
         data=json_data,
