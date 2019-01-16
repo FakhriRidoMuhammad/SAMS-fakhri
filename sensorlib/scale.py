@@ -5,7 +5,7 @@ from config.scale_config import ScaleConfig
 
 class Scale:
     def __init__(self):
-        self.config = ScaleConfig()  # config init
+        self.config = ScaleConfig("/home/pi/config/config.ini")  # config init
         self.hx = HX711(dout_pin=5, pd_sck_pin=6, gain_channel_A=64, select_channel='A')  # initialize scale
         self.is_calibrated = self.config.is_calibrated()  # check config if scale is calibrated
         self.ratio = 0  # scale ratio for calibration

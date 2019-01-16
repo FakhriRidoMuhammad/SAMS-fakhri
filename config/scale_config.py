@@ -1,9 +1,8 @@
 import configparser
-config_file = '/home/pi/config/config.ini'
 
 
 class ScaleConfig:
-    def __init__(self):
+    def __init__(self, config_file):
         self.config_file = config_file
         self.config = configparser.RawConfigParser()
         self.config.read(self.config_file)
@@ -37,6 +36,7 @@ class ScaleConfig:
     def reset_scale(self):
         try:
             self.config.set(self.section_name, self.ratio_key, "0")
+            self.config.set(self.section_name, self.offset_key, "0")
             self.config.set(self.section_name, self.calibrated_key, '0')
             with open(self.config_file, 'w') as configfile:
                 self.config.write(configfile)

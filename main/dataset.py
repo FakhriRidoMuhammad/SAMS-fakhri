@@ -1,14 +1,18 @@
 from sensorlib.scale import Scale
 from sensorlib.dht22 import DHT22
 from config.interval_config import IntervalConfig
+from config.sensor_config import SensorConfig
 from numpy import median
 import time
+config_file = '/home/pi/config/config.ini'
 
 
 class Dataset:
     def __init__(self):
-        self.config = IntervalConfig()
-        self.dht22 = DHT22(21)
+        self.config = IntervalConfig(config_file)
+        self.sensor_config = SensorConfig(config_file)
+        self.dht22_pin = self.sensor_config.dht22
+        self.dht22 = DHT22(self.dht22_pin)
         self.scale = Scale()
         self.median_interval = 0
         self.wait_time = 0

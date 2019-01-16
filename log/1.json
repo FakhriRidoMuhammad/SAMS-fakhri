@@ -1,24 +1,24 @@
 [
   {
-    "sourceId": "dht22-temperature-DE-37139-[FINGERPRINT]",
+    "sourceId": "dht22-temperature-DE-37139-[97834523476534654]",
     "values": [
       {"ts": "2018-10-10T23:06:00Z", "value": 33.2},
     ]
   },
   {
-    "sourceId": "dht22-humidity-DE-37139-[FINGERPRINT]",
+    "sourceId": "dht22-humidity-DE-37139-[97834523476534654]",
     "values": [
       {"ts": "2018-10-10T23:06:00Z", "value": 78.2},
     ]
   },
   {
-    "sourceId": "audio-data-DE-37139-[FINGERPRINT]",
+    "sourceId": "audio-data-DE-37139-[97834523476534654]",
     "values": [
       {"ts": "2018-10-10T23:06:00Z", "value": [1, 2, 3, 4, 500]}
     ]
   },
   {
-    "sourceId": "scale-DE-37139-[FINGERPRINT]",
+    "sourceId": "scale-DE-37139-[97834523476534654]",
     "values": [
       {"ts": "2018-10-10T23:06:00Z", "value": 10.0}
     ]

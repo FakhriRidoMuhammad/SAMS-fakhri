@@ -4,10 +4,12 @@ from sensorlib.scale import Scale
 #from sensorlib.dht22 import DHT22
 #from sensorlib.ds1820 import DS1820
 from main.dataset import Dataset
+from main.application import Application
 from flask import request
 import datetime
 
 app = Flask(__name__)
+application = Application()
 scale = Scale()
 dataset = Dataset()
 #wire = DS1820("28-000008e2f080")
@@ -23,6 +25,11 @@ def start():
 def calibrate():
     scale.setup()
     return render_template('calibrate.html', title="calibrate")
+
+@app.route('/start_scale')
+def start_calibrate():
+    scale.setup()
+    return render_template('start_scale.html', title="calibrate")
 
 
 @app.route('/calibrate_offset')
@@ -50,7 +57,8 @@ def config_scale():
 
 @app.route('/api')
 def summary():
-    json_data = dataset.get_dataset()
+    application.post_logfile()
+    json_data = [{"test": "test"}]
     return jsonify(
         data=json_data,
     )
