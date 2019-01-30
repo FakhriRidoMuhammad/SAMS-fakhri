@@ -1,21 +1,22 @@
 import json
 import os
 import time
-from api_plugin.sams_science import Api
+from api_plugin.sams_science import SamsApi
 
 
 class Log:
     def __init__(self):
         self.path = '/home/pi/log/'
-        self.api = Api()
+        self.api = SamsApi()
         self.status = []
         self.files = os.listdir(self.path)
 
     def insert(self, json_data):
+        print("insert data...")
         files = os.listdir(self.path)
         if len(files) != 0:
-            file = max(files)
-            file = int(file[:-5]) + 1
+            file = int(
+                len([name for name in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, name))])) + 1
         else:
             file = int(1)
         try:
@@ -42,9 +43,9 @@ class Log:
 
     def post_log_files(self, dataset):
         try:
-            print("try post log files...")
-            self.insert(dataset)
+            self.files = os.listdir(self.path)
             print("log dataset...")
+            self.insert(dataset)
             self.list_dir()
             print("list directory: {0}".format(self.files))
             while self.has_log_files():
@@ -57,6 +58,7 @@ class Log:
                     time.sleep(5)
 
             print("all log files posted")
+            return True
 
         except Exception as e:
             print(e)

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+        <table>
+            <tr>
+                <th>Sensor</th>
+                <th>Data</th>
+            </tr>
+            <tr v-if="loading">
+                <td>loading...</td>
+                <td>please wait...</td>
+            </tr>
+            <tr v-for="(value, key) in info.data">
+                <td>{{ "{{ key }}" }}</td>
+                <td>{{ "{{ value }}" }}</td>
+            </tr>
+        </table>
+{% endblock %}

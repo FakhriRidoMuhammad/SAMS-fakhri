@@ -1,19 +1,23 @@
 from flask import Flask
 from flask import render_template, jsonify
 from sensorlib.scale import Scale
-#from sensorlib.dht22 import DHT22
-#from sensorlib.ds1820 import DS1820
-from main.dataset import Dataset
 from main.application import Application
 from flask import request
-import datetime
+from threading import Thread
+from main.api_data import ApiData
+# import secrets
 
-app = Flask(__name__)
+
 application = Application()
-application.start()
+
+def start_datalog():
+    application.start()
+
+
+data_log_thread = Thread(target=start_datalog)
+data_log_thread.start()
+app = Flask(__name__)
 scale = Scale()
-dataset = Dataset()
-#wire = DS1820("28-000008e2f080")
 
 
 @app.route('/')
@@ -26,6 +30,7 @@ def start():
 def calibrate():
     scale.setup()
     return render_template('calibrate.html', title="calibrate")
+
 
 @app.route('/start_scale')
 def start_calibrate():
@@ -50,15 +55,45 @@ def reset():
     return render_template('reset.html', title="reset")
 
 
+@app.route('/debug')
+def debug():
+    return render_template('debug.html', title="debug")
+
+
+@app.route('/save_id', methods=['POST'])
+def save_id():
+    print(request.form['hive_id'])
+    return render_template('save_id.html', title="save id", hive_id=request.form['hive_id'])
+
+
 @app.route('/calibrate_offset', methods=['POST'])
 def config_scale():
     scale.calibrate(request.form['weight'])
     return render_template('calibrated.html', title="calibrated", weight=scale.get_data())
 
 
+@app.route('/set_id', methods=['POST'])
+def set_id():
+    country_code = request.form['country_code']
+    zip_code = request.form['zip_code']
+    # hash_id = secrets.token_hex(nbytes=16)
+    hive_id = "{0}-{1}-{2}".format(country_code, zip_code, hash_id)
+    return render_template('confirm_id.html', title="set id", country_code=country_code, zip_code=zip_code, id=hive_id)
+
+
 @app.route('/api')
 def summary():
-    json_data = [{"test": "test"}]
+    data = ApiData()
+    json_data = {}
+    ds18b20data = data.get_ds18b20_data()
+    dht22data = data.get_dht22_data()
+    weight = scale.get_data()
+    for x in range(len(ds18b20data)):
+        json_data["DS1820B-{}".format(x)] = "{0} {1}".format(ds18b20data[x], "°C")
+
+    json_data["dht22 hum"] = "{0} {1}".format(dht22data['hum'], "%")
+    json_data["dht22 temp"] = "{0} {1}".format(dht22data['temp'], "°C")
+    json_data["weight"] = "{0} {1}".format(weight, "KG")
     return jsonify(
         data=json_data,
     )

@@ -1,10 +1,9 @@
 import requests
 
 
-class Api:
+class SamsApi:
     def __init__(self):
         self.url = "https://sams.science.itf.llu.lv/api/test/"
-        self.response = False
 
     def post_dataset(self, dataset):
         try:

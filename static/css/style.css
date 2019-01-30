@@ -1345,6 +1345,7 @@ input[type="text"] {
   padding: 5px;
   background-color: #fff;
   border: 2px solid black;
+  margin-bottom: 20px;
   -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
   -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
   box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0); }
@@ -1440,6 +1441,15 @@ nav.breadcrumb {
 .mt-25 {
   display: block;
   margin-top: 25px !important; }
+
+table {
+  max-width: 320px;
+  display: block;
+  margin: 0 auto; }
+  table tr {
+    text-align: left; }
+  table td, table th {
+    padding: 5px 15px; }
 
 nav ul li {
   list-style: none;

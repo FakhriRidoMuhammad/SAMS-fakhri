@@ -1,21 +1,22 @@
 import RPi.GPIO as GPIO
 from sensorlib.hx711 import HX711
-from config.scale_config import ScaleConfig
+from config.config import Config
 
 
 class Scale:
     def __init__(self):
-        self.config = ScaleConfig("/home/pi/config/config.ini")  # config init
+        self.config = Config()  # config init
+        self.config_data = self.config.get_config_data()
         self.hx = HX711(dout_pin=5, pd_sck_pin=6, gain_channel_A=64, select_channel='A')  # initialize scale
-        self.is_calibrated = self.config.is_calibrated()  # check config if scale is calibrated
+        self.is_calibrated = self.config_data['SCALE'].getboolean("calibrated")  # check config if scale is calibrated
         self.ratio = 0  # scale ratio for calibration
         self.value = 0
         self.measure_weight = 0
         self.result = 0
         self.data = 0
         if self.is_calibrated:
-            self.hx._offset_A_64 = float(self.config.get_offset())
-            self.config_ratio = self.config.get_ratio()  # get scale ratio of config
+            self.hx._offset_A_64 = float(self.config_data["SCALE"]['offset'])
+            self.config_ratio = self.config_data["SCALE"]['ratio']  # get scale ratio of config
             self.hx.set_scale_ratio(scale_ratio=float(self.config_ratio))
 
     def setup(self):
@@ -32,7 +33,7 @@ class Scale:
             self.value = float(weight)
             self.ratio = self.data / self.value
             self.hx.set_scale_ratio(scale_ratio=self.ratio)
-            self.config.insert_ratio(self.ratio, self.hx._offset_A_64)
+            self.config.set_scale(self.ratio, self.hx._offset_A_64)
         except ValueError:
             print('Expected integer or float and I have got: '
                   + str(weight))
@@ -46,12 +47,12 @@ class Scale:
             print("Scale or HX711 connected? : {0}".format(e))
 
     def calibrated(self):
-        self.is_calibrated = self.config.is_calibrated()
+        self.is_calibrated = self.config_data['SCALE'].getboolean("calibrated")
 
         return self.is_calibrated
 
     def reset(self):
-        self.config.reset_scale()
+        self.config.set_scale()
 
     @staticmethod
     def clean():

@@ -71,3 +71,15 @@ nav.breadcrumb {
   display: block;
   margin-top: 25px !important;
 }
+
+table {
+  max-width: 320px;
+  display: block;
+  margin: 0 auto;
+  tr {
+    text-align: left;
+  }
+  td, th {
+    padding: 5px 15px;
+  }
+}

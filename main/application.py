@@ -1,7 +1,5 @@
-from sensorlib.scale import Scale
-from sensorlib.dht22 import DHT22
-from config.sensor_config import SensorConfig
-from api_plugin.sams_science import Api
+from api_plugin.sams_science import SamsApi
+from config.config import Config
 from main.dataset import Dataset
 from main.log import Log
 import time
@@ -9,14 +7,11 @@ import time
 
 class Application:
     def __init__(self):
-        self.sensor_config = SensorConfig("/home/pi/config/config.ini")
-        self.dht22_pin = self.sensor_config.dht22
         self.is_data_posted = False
-        self.is_data_saved = False
-        self.scale = Scale()
         self.log = Log()
-        self.dht22_sensor = DHT22(self.dht22_pin["sensor_1"])
-        self.api = Api()
+        self.api = SamsApi()
+        self.config = Config()
+        self.config_data = self.config.get_config_data()
 
         self.data = Dataset()
         self.dataset = dict()
@@ -38,7 +33,7 @@ class Application:
                 if response:
                     print("Dataset posted!")
                 else:
-                    print ("Dataset posting failed. Statuscode: {0}".format(response))
+                    print("Dataset posting failed. Statuscode: {0}".format(response))
                     self.is_data_posted = False  # reset is data posted
                     print("log dataset")
                     self.log.insert(self.dataset)  # log dataset
