@@ -1193,7 +1193,7 @@ h1 {
   font-family: 'Roboto', monospace;
   text-align: center;
   color: black;
-  font-size: 33px;
+  font-size: 40px;
   font-weight: 100;
   margin: 50px 0 75px 0;
   padding-bottom: 25px;
@@ -1202,19 +1202,19 @@ h1 {
 h2 {
   color: black;
   font-family: 'Roboto', monospace;
-  font-size: 20px;
+  font-size: 33px;
   letter-spacing: 1.5px; }
 
 h3 {
   font-family: 'Roboto', monospace;
   color: black;
-  font-size: 16px;
+  font-size: 26px;
   margin-top: 13px;
   letter-spacing: 0.5px;
   font-weight: 300; }
 
 p {
-  font-size: 15px;
+  font-size: 18px;
   line-height: 22px;
   color: black;
   margin-bottom: 5px; }
@@ -1333,7 +1333,7 @@ p.path {
   text-align: center;
   margin-top: 20px; }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
   -webkit-transition: all 0.5s ease;
   -khtml-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -1346,10 +1346,11 @@ input[type="text"] {
   background-color: #fff;
   border: 2px solid black;
   margin-bottom: 20px;
+  margin-top: 25px;
   -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
   -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
   box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0); }
-  input[type="text"]:focus {
+  input[type="text"]:focus, input[type="text"]:hover, input[type="password"]:focus, input[type="password"]:hover {
     outline: none;
     -webkit-box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.75);
@@ -1371,17 +1372,18 @@ button, a.button {
   text-transform: uppercase;
   border-radius: 3px;
   font-weight: 500;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1; }
   button:hover, a.button:hover {
     border: 1px solid #525355; }
 
 div.content {
-  padding: 25px;
-  width: 80%;
+  display: inline-block;
+  padding: 25px 25px 100px 25px;
   margin: 0 auto;
   opacity: 1;
-  text-align: center; }
+  text-align: center;
+  width: calc(100% - 50px); }
 
 a.button {
   margin-top: 25px; }
@@ -1451,17 +1453,55 @@ table {
   table td, table th {
     padding: 5px 15px; }
 
+div.tile {
+  display: inline-block;
+  padding: 25px 50px;
+  border: 1px solid black;
+  width: calc(100% - 100px);
+  margin-bottom: 25px;
+  max-width: calc(320px - 100px);
+  text-align: left;
+  position: relative;
+  border-radius: 5px; }
+  div.tile h3 {
+    text-transform: uppercase; }
+  div.tile p {
+    margin: 3px 0; }
+  div.tile span.bold {
+    font-weight: bold; }
+  @media screen and (min-width: 768px) {
+    div.tile {
+      margin-right: 25px; }
+      div.tile:last-child {
+        margin-right: 0; } }
+
+div.dg-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 25px;
+  background: #e74c3c; }
+
+div.dg-content {
+  font-size: 18px;
+  font-weight: bold; }
+
+.dg-btn--cancel {
+  margin-right: 20px; }
+
 nav ul li {
   list-style: none;
   display: inline-block;
   padding: 0 3px; }
   nav ul li a {
-    text-decoration: none; }
+    text-decoration: none;
+    font-size: 18px; }
 
 footer {
   font-family: 'Nanum Gothic Coding', monospace;
   background: #fff;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;

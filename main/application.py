@@ -29,7 +29,7 @@ class Application:
                 print("has log files...")
                 self.log.post_log_files(self.dataset)
             else:
-                response = self.api.post_dataset(self.dataset)
+                response = self.api.call(self.dataset)
                 if response:
                     print("Dataset posted!")
                 else:
@@ -39,7 +39,7 @@ class Application:
                     self.log.insert(self.dataset)  # log dataset
                     while not self.is_data_posted:
                         print("try to post dataset...")
-                        self.is_data_posted = self.api.post_dataset(self.dataset)
+                        self.is_data_posted = self.api.call(self.dataset)
                         time.sleep(5)
             print("wait 10 seconds...")
             time.sleep(10)

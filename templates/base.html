@@ -1,14 +1,21 @@
 <!doctype html>
 <head>
     <title>{{ title }} - beemo</title>
+    <meta name="apple-mobile-web-app-title" content="SAMS">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="anderswodenker">
+    <meta http-equiv="language" content="en">
+    <!-- Icons, Styles and hreflang -->
+    <link href="/favicon.png" rel="shortcut icon" type="image/png">
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
 <body>
 <nav>
     <ul>
+        <li><a href="/">Start <i class="icon icon-home"></i></a></li>
         <li><a href="/settings">Settings <i class="icon icon-settings"></i></a></li>
-        <li><a href="/reset">Reset Scale <i class="icon icon-repeat"></i></a></li>
     </ul>
 </nav>
 <div class="content">

@@ -14,7 +14,7 @@ h1 {
   font-family: 'Roboto', monospace;
   text-align: center;
   color: $primarycolor;
-  font-size: 33px;
+  font-size: 40px;
   font-weight: 100;
   margin: 50px 0 75px 0;
   padding-bottom: 25px;
@@ -24,21 +24,21 @@ h1 {
 h2 {
   color: $primarycolor;
   font-family: 'Roboto', monospace;
-  font-size: 20px;
+  font-size: 33px;
   letter-spacing: 1.5px;
 }
 
 h3 {
   font-family: 'Roboto', monospace;
   color: $primarycolor;
-  font-size: 16px;
+  font-size: 26px;
   margin-top: 13px;
   letter-spacing: 0.5px;
   font-weight: $light;
 }
 
 p {
-  font-size: 15px;
+  font-size: 18px;
   line-height: 22px;
   color: $primarycolor;
   margin-bottom: 5px;

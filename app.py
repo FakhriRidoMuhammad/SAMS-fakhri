@@ -5,17 +5,21 @@ from main.application import Application
 from flask import request
 from threading import Thread
 from main.api_data import ApiData
-# import secrets
 
 
 application = Application()
+
 
 def start_datalog():
     application.start()
 
 
+client_id = "test_id"
+country = "DE"
+zip_code = 37139
+
 data_log_thread = Thread(target=start_datalog)
-data_log_thread.start()
+# data_log_thread.start()
 app = Flask(__name__)
 scale = Scale()
 
@@ -30,6 +34,20 @@ def start():
 def calibrate():
     scale.setup()
     return render_template('calibrate.html', title="calibrate")
+
+
+@app.route('/tare')
+def tare():
+    scale.tare()
+    return render_template('settings.html', title="calibrate", tare=True, client_id=client_id, country=country,
+                           zip_code=zip_code)
+
+
+@app.route('/reset')
+def reset():
+    scale.reset()
+    return render_template('settings.html', title="reset", reset=True, client_id=client_id, country=country,
+                           zip_code=zip_code)
 
 
 @app.route('/start_scale')
@@ -49,15 +67,14 @@ def measure():
     return render_template('measure.html', title="measure", weight=scale.measure_weight)
 
 
-@app.route('/reset')
-def reset():
-    scale.reset()
-    return render_template('reset.html', title="reset")
-
-
 @app.route('/debug')
 def debug():
     return render_template('debug.html', title="debug")
+
+
+@app.route('/settings')
+def setting():
+    return render_template('settings.html', title="setting", client_id=client_id, country=country, zip_code=zip_code)
 
 
 @app.route('/save_id', methods=['POST'])

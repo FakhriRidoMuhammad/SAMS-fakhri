@@ -1,10 +1,14 @@
-from config.information_config import InformationConfig
-from config.config import Config
+from api_plugin.sams_science import SamsApi
+import requests
 
-config = Config()
+payload = [{
+    "sourceId": "dht22-humidity-DE-37139-[97834523476534654]",
+    "values": [{
+        "ts": '2018-10-10T10:16:00Z',
+        "value": 75.5
+    }]
+}]
 
-val = config.get_config_data()
-
-print(val['SCALE'].getboolean("calibrated"))
-
+api = SamsApi()
+api.api_call(payload)
 

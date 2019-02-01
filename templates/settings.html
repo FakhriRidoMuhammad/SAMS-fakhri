@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Settings</h1>
+    <div class="setting-content">
+        <h2>Device Information</h2>
+        <div class="tile">
+            <h3>information</h3>
+            <p>client_id: <span class="bold">{{ client_id }}</span></p>
+            <p>country: <span class="bold">{{ country }}</span></p>
+            <p>zip code: <span class="bold">{{ zip_code }}</span></p>
+        </div>
+        <h2>Scale</h2>
+        <div class="tile">
+            <h3>tare</h3>
+            {% if not tare %}
+                <p>Set the scale to zero <i class="icon icon-alert-triangle"></i></p>
+                <a v-confirm="{message: 'Are you sure you want to set the scale to zero?'}" href="/tare" class="button">tare</a>
+            {% else %}
+                <p>The scale has now been set to zero</p>
+            {% endif %}
+        </div>
+        <div class="tile">
+            <h3>reset</h3>
+            {% if not reset %}
+                <p>Reset all scale settings <i class="icon icon-alert-triangle"></i></p>
+                <a v-confirm="{message: 'Are you sure you want to reset all scale settings?'}" href="/reset" class="button">reset</a>
+            {% else %}
+                <p>The scale has now been reset!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

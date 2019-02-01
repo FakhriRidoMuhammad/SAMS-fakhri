@@ -2,6 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 import statistics as stat
+
+
 class HX711:
     def __init__(self, dout_pin, pd_sck_pin, gain_channel_A=128, select_channel='A'):
         if (isinstance(dout_pin, int) and
@@ -95,7 +97,7 @@ class HX711:
                       self._gain_channel_A == 64):
                     self._offset_A_64 = result
                     return True
-                elif (self._current_channel == 'B'):
+                elif self._current_channel == 'B':
                     self._offset_B = result
                     return True
                 else:

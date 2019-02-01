@@ -3,8 +3,10 @@ import Vue from 'vue'
 import VueResource from 'vue-resource'
 import jQuery from 'jquery';
 import axios from 'axios'
+import VuejsDialog from "vuejs-dialog"
 
 Vue.use(VueResource);
+Vue.use(VuejsDialog);
 const http = Vue.http;
 
 export default http
@@ -25,8 +27,8 @@ var app = new Vue({
         info: ""
     },
     mounted() {
-        this.get_data()
-        this.timer = setInterval(this.get_data, 4000)
+        // this.get_data();
+        // this.timer = setInterval(this.get_data, 4000)
     },
 
     methods: {
@@ -50,6 +52,16 @@ var app = new Vue({
                     this.loading = false,
                         this.info = response.data
                 ))
+        },
+        tare(event) {
+            this.$dialog.
+            confirm('Please confirm to continue')
+                .then(function () {
+                    console.log('Clicked on proceed')
+                })
+                .catch(function () {
+                    console.log('Clicked on cancel')
+                })
         }
     },
     beforeDestroy() {

@@ -11,7 +11,7 @@ body {
   text-transform: uppercase;
   border-radius: 3px;
   font-weight: 500;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
 
   &:hover {
@@ -20,11 +20,12 @@ body {
 }
 
 div.content {
-  padding: 25px;
-  width: 80%;
+  display: inline-block;
+  padding: 25px 25px 100px 25px;
   margin: 0 auto;
   opacity: 1;
   text-align: center;
+  width: calc(100% - 50px);
 }
 
 a.button {
@@ -82,4 +83,55 @@ table {
   td, th {
     padding: 5px 15px;
   }
+}
+
+div.tile {
+  display: inline-block;
+  padding: 25px 50px;
+  border: 1px solid black;
+  width: calc(100% - 100px);
+  margin-bottom: 25px;
+  max-width: calc(320px - 100px);
+  text-align: left;
+  position: relative;
+  border-radius: 5px;
+
+  h3 {
+    text-transform: uppercase;
+  }
+  p {
+    margin: 3px 0;
+  }
+  span.bold {
+    font-weight: bold;
+  }
+
+  @include media($bp4) {
+    margin-right: 25px;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+div.setting-content {
+
+}
+
+div.dg-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 25px;
+  background: $red;
+}
+
+div.dg-content {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.dg-btn--cancel {
+  margin-right: 20px;
 }
