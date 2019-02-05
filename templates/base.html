@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="anderswodenker">
     <meta http-equiv="language" content="en">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta content="SAMS Hive" name="apple-mobile-web-app-title">
     <!-- Icons, Styles and hreflang -->
     <link href="/favicon.png" rel="shortcut icon" type="image/png">
     <link href="/apple-touch-icon.png" rel="apple-touch-icon">
@@ -12,21 +16,21 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 </head>
 <body>
-<nav>
-    <ul>
-        <li><a href="/">Start <i class="icon icon-home"></i></a></li>
-        <li><a href="/settings">Settings <i class="icon icon-settings"></i></a></li>
-    </ul>
-</nav>
+<header>
+    <div class="logoWrapper">
+        <img src="{{ url_for('static', filename='images/dsn_sams_logo.png') }}" alt="Synopsis Frontend Test">
+    </div>
+</header>
 <div class="content">
     <section id="app" v-cloak>
         {% block content %} {% endblock %}
     </section>
 </div>
 <footer>
-    <div class="logoWrapper">
-        <img src="{{ url_for('static', filename='images/bee-thing.png') }}" alt="Synopsis Frontend Test">
-    </div>
+    <ul>
+        <li><a href="/"><i class="icon icon-home"></i></a></li>
+        <li><a href="/settings"><i class="icon icon-settings"></i></a></li>
+    </ul>
 </footer>
 <script async src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

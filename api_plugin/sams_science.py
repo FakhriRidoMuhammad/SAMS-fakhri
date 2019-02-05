@@ -79,6 +79,7 @@ class SamsApi:
             return False
 
     def read_token(self):
+        print("read token...")
         self.token_config.read(self.token_config_file)
         token_config_data = self.token_config['DEFAULT']
         token = token_config_data['token']
@@ -86,9 +87,10 @@ class SamsApi:
         return token
 
     def write_token(self, token):
-        self.config.set("DEFAULT", "token", token)
+        print("write token...")
+        self.token_config.set("DEFAULT", "token", token)
         try:
             with open(self.token_config_file, 'w+') as configfile:
-                self.config.write(configfile)
+                self.token_config.write(configfile)
         except Exception as e:
             print(e)

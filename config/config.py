@@ -4,17 +4,12 @@ import configparser
 class Config:
     def __init__(self):
         self.config_file = '/home/pi/config/config.ini'
-        self.secret_file = '/boot/credentials.ini'
         self.config = configparser.ConfigParser()
         self.scale_section = "SCALE"
 
     def get_config_data(self):
         self.config.read(self.config_file)
         return self.config
-
-    def get_user_secret(self):
-        self.config.read(self.secret_file)
-        return
 
     def set_scale(self, ratio=0, offset=0, calibrated=0):
         self.config.set(self.scale_section, "ratio", str(ratio))
@@ -32,3 +27,4 @@ class Config:
                 self.config.write(configfile)
         except Exception as e:
             print(e)
+

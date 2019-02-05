@@ -7,9 +7,11 @@ from sensorlib.ds1820 import DS18B20
 from scipy import signal
 from numpy import diff as np
 from numpy import median
-from datetime import datetime
 from threading import Thread
 from config.config import Config
+from api_plugin.sams_science import SamsApi
+from datetime import datetime
+from pytz import timezone
 
 
 class Dataset:
@@ -19,7 +21,7 @@ class Dataset:
         self.dht22 = DHT22(int(self.config_data['DHT22']['pin']))
         self.scale = Scale()
         self.DS18B20 = DS18B20()
-        self.id = "DE-37139-[97834523476534654]"
+        self.api = SamsApi()
 
         self.median_interval = 0
         self.wait_time = 0
@@ -46,20 +48,21 @@ class Dataset:
 
     @staticmethod
     def get_time():
-        now = datetime.now()
-        now = now.strftime("%Y-%m-%dT%H:%M:%S")
-        return now
+        fmt = "%Y-%m-%d %H:%M:%S %Z%z"
+        now_utc = datetime.now(timezone('UTC'))
+        now_pacific = now_utc.astimezone(timezone('US/Pacific'))
+        return "2019-01-30T09:15:00Z"
 
     def get_fft_data(self):
-        #self.nWindow = 2 ^ 12
-        nOverlap = self.nWindow / 2
-        nFFT = self.nWindow
+        # self.nWindow = 2 ^ 12
+        # nOverlap = self.nWindow / 2
+        # nFFT = self.nWindow
 
         try:
             print("recording audio data...")
-            audiodata = sd.rec(self.duration * self.fs, samplerate=self.fs, channels=2, dtype='float64')
-            sd.wait()
-            print("finish recording audio data")
+        # audiodata = sd.rec(self.duration * self.fs, samplerate=self.fs, channels=2, dtype='float64')
+        # sd.wait()
+        # print("finish recording audio data")
         # [Pxx, F] = scipy.signal.welch(audiodata, fs=self.fs, window='hanning', nwindow=self.nWindow, noverlap=nOverlap,
         #                               nfft=nFFT, detrend=False, return_onesided=True, scaling='density')
         # print(Pxx)
@@ -89,9 +92,12 @@ class Dataset:
                         del self.ds_temp[:]
                         self.dataset.append(
                             {
-                                "sourceId": "dsb18b20-{0}-{1}".format(x, self.id),
-                                "values": [
-                                    {"ts": self.get_time(), "value": self.median_ds_temp},
+                                "sourceId": "dsb18b20-{0}-{1}".format(x, self.api.client_id),
+                                "value": [
+                                    {
+                                        "ts": self.get_time(),
+                                        "value": float(self.median_ds_temp)
+                                     },
                                 ]
                             }
                         )
@@ -113,17 +119,23 @@ class Dataset:
 
             self.dataset.append(
                 {
-                    "sourceId": "dht22-temperature-DE-37139-[97834523476534654]",
+                    "sourceId": "dht22-temperature-{0}".format(self.api.client_id),
                     "values": [
-                        {"ts": self.get_time(), "value": self.median_temp},
+                        {
+                            "ts": self.get_time(),
+                            "value": float(self.median_temp)
+                        },
                     ]
                 }
             )
             self.dataset.append(
                 {
-                    "sourceId": "dht22-humidity-DE-37139-[97834523476534654]",
+                    "sourceId": "dht22-humidity-{0}".format(self.api.client_id),
                     "values": [
-                        {"ts": self.get_time(), "value": self.median_hum},
+                        {
+                            "ts": self.get_time(),
+                            "value": float(self.median_hum)
+                        },
                     ]
                 }
             )
@@ -145,9 +157,12 @@ class Dataset:
             del self.weight[:]
             self.dataset.append(
                 {
-                    "sourceId": "scale-DE-37139-[97834523476534654]",
-                    "values": [
-                        {"ts": self.get_time(), "value": self.median_weight}
+                    "sourceId": self.api.client_id,
+                    "value": [
+                        {
+                            "ts": self.get_time(),
+                            "value": float(self.median_weight)
+                        }
                     ]
                 }
             )

@@ -52,7 +52,7 @@ class Log:
                 for x in range(len(self.files)):
                     file = self.read_file(self.path + str(self.files[x]))
                     print("try to post data")
-                    if self.api.post_dataset(file):
+                    if self.api.call(file):
                         print("status code ok! Delete file...")
                         os.remove(self.path + str(self.files[x]))
                     time.sleep(5)

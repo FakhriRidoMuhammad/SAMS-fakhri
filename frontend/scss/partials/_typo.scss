@@ -12,13 +12,10 @@
 
 h1 {
   font-family: 'Roboto', monospace;
-  text-align: center;
+  font-size: 50px;
   color: $primarycolor;
-  font-size: 40px;
-  font-weight: 100;
-  margin: 50px 0 75px 0;
-  padding-bottom: 25px;
-  border-bottom: 1px solid black;
+  letter-spacing: 0;
+  margin: 10px 0 30px 0;
 }
 
 h2 {
@@ -39,17 +36,19 @@ h3 {
 
 p {
   font-size: 18px;
-  line-height: 22px;
   color: $primarycolor;
-  margin-bottom: 5px;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 23px;
+  margin: 0;
+
+  &.normal {
+    font-weight: normal;
+  }
 }
 
 a {
-  color: $primarycolor;
 
-  &:hover {
-    color: black;
-  }
 }
 
 span.head_title {
@@ -75,6 +74,7 @@ span.head_title {
 
 .click {
   cursor: pointer;
+
   &:after {
     @include transition(all .3s ease);
     font-family: 'feather' !important;
@@ -84,10 +84,11 @@ span.head_title {
     top: 5px;
     line-height: 1;
   }
-    &:hover {
-      &:after {
-        @include transform(rotate(-90deg));
-      }
+
+  &:hover {
+    &:after {
+      @include transform(rotate(-90deg));
+    }
   }
 }
 

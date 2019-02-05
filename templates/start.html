@@ -1,16 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
     {% if calibrated %}
-        <h1>Your system is ready!</h1>
+        <h1>Your system is ready to use!</h1>
+        <h1><i class="icon icon-check"></i></h1>
+
     {% else %}
         <h1>Initializing</h1>
-    <div class="formWrapper">
-        <form action="{{ url_for('set_id') }}" method="post">
-            <input type="text" v-model="country_code"  name="country_code" placeholder="country code">
-            <input type="text" v-model="zip_code"  name="zip_code" placeholder="zip code">
-            <button id="button" v-on:click="post" type="submit">Save <i class="icon icon-check"></i></button>
-        </form>
-    </div>
+        <p>Remove any items from scale.</p>
+        <p class="normal">Press "Start" when ready.</p>
+        <a href="/calibrate" class="button">Start</a>
     {% endif %}
 {% endblock %}
 

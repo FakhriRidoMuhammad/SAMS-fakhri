@@ -1191,23 +1191,20 @@ img {
 
 h1 {
   font-family: 'Roboto', monospace;
-  text-align: center;
-  color: black;
-  font-size: 40px;
-  font-weight: 100;
-  margin: 50px 0 75px 0;
-  padding-bottom: 25px;
-  border-bottom: 1px solid black; }
+  font-size: 50px;
+  color: #1D1E1F;
+  letter-spacing: 0;
+  margin: 10px 0 30px 0; }
 
 h2 {
-  color: black;
+  color: #1D1E1F;
   font-family: 'Roboto', monospace;
   font-size: 33px;
   letter-spacing: 1.5px; }
 
 h3 {
   font-family: 'Roboto', monospace;
-  color: black;
+  color: #1D1E1F;
   font-size: 26px;
   margin-top: 13px;
   letter-spacing: 0.5px;
@@ -1215,19 +1212,18 @@ h3 {
 
 p {
   font-size: 18px;
-  line-height: 22px;
-  color: black;
-  margin-bottom: 5px; }
-
-a {
-  color: black; }
-  a:hover {
-    color: black; }
+  color: #1D1E1F;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 23px;
+  margin: 0; }
+  p.normal {
+    font-weight: normal; }
 
 span.head_title {
   font-family: 'Nanum Gothic Coding', monospace;
   text-transform: uppercase;
-  color: black;
+  color: #1D1E1F;
   display: inline-block; }
 
 .error {
@@ -1235,7 +1231,7 @@ span.head_title {
   font-family: 'Nanum Gothic Coding', monospace; }
 
 .warning {
-  color: #3E3E40;
+  color: #f8c537;
   font-family: 'Nanum Gothic Coding', monospace; }
 
 .upper {
@@ -1333,7 +1329,7 @@ p.path {
   text-align: center;
   margin-top: 20px; }
 
-input[type="text"], input[type="password"] {
+input[type="number"], input[type="password"] {
   -webkit-transition: all 0.5s ease;
   -khtml-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
@@ -1344,17 +1340,16 @@ input[type="text"], input[type="password"] {
   width: calc(100% - 10px);
   padding: 5px;
   background-color: #fff;
-  border: 2px solid black;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #242017;
   margin-bottom: 20px;
   margin-top: 25px;
-  -webkit-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
-  -moz-box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0);
-  box-shadow: 10px 10px 5px 0px rgba(0, 0, 0, 0); }
-  input[type="text"]:focus, input[type="text"]:hover, input[type="password"]:focus, input[type="password"]:hover {
-    outline: none;
-    -webkit-box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.75);
-    box-shadow: 4px 6px 21px 0px rgba(0, 0, 0, 0.75); }
+  max-width: 150px;
+  border-radius: 0; }
+  input[type="number"]:focus, input[type="number"]:hover, input[type="password"]:focus, input[type="password"]:hover {
+    outline: none; }
 
 button {
   cursor: pointer;
@@ -1362,20 +1357,36 @@ button {
 
 body {
   font-family: 'Roboto', monospace;
-  font-weight: 300; }
+  font-weight: 300;
+  color: #242017; }
+
+button, a.button, div.tile {
+  -webkit-box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45);
+  -moz-box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45); }
+  button:hover, a.button:hover, div.tile:hover {
+    -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75); }
 
 button, a.button {
+  -webkit-transition: all 0.2s ease;
+  -khtml-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  -ms-transition: all 0.2s ease;
+  -o-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+  font-size: 1.8rem;
   display: inline-block;
-  border: 2px solid black;
-  padding: 5px 16px;
+  background: #242017;
+  color: #fff;
+  padding: 8px 30px;
   text-decoration: none;
   text-transform: uppercase;
-  border-radius: 3px;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 1; }
-  button:hover, a.button:hover {
-    border: 1px solid #525355; }
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 3px; }
 
 div.content {
   display: inline-block;
@@ -1386,7 +1397,7 @@ div.content {
   width: calc(100% - 50px); }
 
 a.button {
-  margin-top: 25px; }
+  margin-top: 50px; }
 
 div.formWrapper {
   display: block;
@@ -1394,11 +1405,11 @@ div.formWrapper {
   max-width: 320px; }
 
 nav.breadcrumb {
-  margin-top: -6px; }
-  nav.breadcrumb a.iconLink {
+  text-align: left; }
+  nav.breadcrumb a.button-icon {
+    font-size: 1.8rem;
+    color: #242017;
     text-decoration: none; }
-    nav.breadcrumb a.iconLink i {
-      font-size: 30px; }
 
 @-webkit-keyframes in {
   from {
@@ -1454,11 +1465,16 @@ table {
     padding: 5px 15px; }
 
 div.tile {
+  -webkit-transition: all 0.3s ease;
+  -khtml-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
   display: inline-block;
   padding: 25px 50px;
-  border: 1px solid black;
   width: calc(100% - 100px);
-  margin-bottom: 25px;
+  margin-bottom: 55px;
   max-width: calc(320px - 100px);
   text-align: left;
   position: relative;
@@ -1466,7 +1482,10 @@ div.tile {
   div.tile h3 {
     text-transform: uppercase; }
   div.tile p {
-    margin: 3px 0; }
+    margin: 3px 0;
+    text-align: left; }
+  div.tile a.button {
+    margin-top: 25px; }
   div.tile span.bold {
     font-weight: bold; }
   @media screen and (min-width: 768px) {
@@ -1481,7 +1500,7 @@ div.dg-container {
   left: 0;
   right: 0;
   padding: 25px;
-  background: #e74c3c; }
+  background: #f8c537; }
 
 div.dg-content {
   font-size: 18px;
@@ -1490,28 +1509,45 @@ div.dg-content {
 .dg-btn--cancel {
   margin-right: 20px; }
 
-nav ul li {
-  list-style: none;
+.live_view {
+  font-size: 22px;
+  text-align: center;
+  display: block;
+  margin: 20px; }
+
+div.logoWrapper {
   display: inline-block;
-  padding: 0 3px; }
-  nav ul li a {
-    text-decoration: none;
-    font-size: 18px; }
+  max-width: 200px;
+  line-height: 0;
+  vertical-align: bottom;
+  padding: 25px; }
 
 footer {
   font-family: 'Nanum Gothic Coding', monospace;
-  background: #fff;
+  background: #242017;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   padding: 13px 0;
   text-align: center; }
-  footer div.logoWrapper {
-    display: inline-block;
-    max-width: 50px;
-    line-height: 0;
-    vertical-align: bottom; }
+  footer ul {
+    margin: 0;
+    padding: 0; }
+    footer ul li {
+      list-style: none;
+      display: inline-block;
+      padding: 0 30px; }
+      footer ul li a {
+        -webkit-transition: all 0.3s ease;
+        -khtml-transition: all 0.3s ease;
+        -moz-transition: all 0.3s ease;
+        -ms-transition: all 0.3s ease;
+        -o-transition: all 0.3s ease;
+        transition: all 0.3s ease;
+        font-size: 2.2rem;
+        color: #fff;
+        text-decoration: none; }
 
 
 /*# sourceMappingURL=../beemo/script.js.map*/

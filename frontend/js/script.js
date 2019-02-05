@@ -24,11 +24,11 @@ var app = new Vue({
         ds18b20data: "",
         weight: "",
         microphone: "",
-        info: ""
+        info: "",
+        live: false
     },
     mounted() {
-        // this.get_data();
-        // this.timer = setInterval(this.get_data, 4000)
+         this.get_data();
     },
 
     methods: {
@@ -44,6 +44,10 @@ var app = new Vue({
 
             });
         },
+        live_view() {
+            this.live = true;
+            this.timer = setInterval(this.get_data, 4000)
+        },
 
         get_data() {
             axios
@@ -53,18 +57,9 @@ var app = new Vue({
                         this.info = response.data
                 ))
         },
-        tare(event) {
-            this.$dialog.
-            confirm('Please confirm to continue')
-                .then(function () {
-                    console.log('Clicked on proceed')
-                })
-                .catch(function () {
-                    console.log('Clicked on cancel')
-                })
-        }
     },
     beforeDestroy() {
+        this.live = false;
         clearInterval(this.timer)
     }
 });

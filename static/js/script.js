@@ -142,11 +142,11 @@ var app = new _vue2.default({
         ds18b20data: "",
         weight: "",
         microphone: "",
-        info: ""
+        info: "",
+        live: false
     },
     mounted: function mounted() {
-        // this.get_data();
-        // this.timer = setInterval(this.get_data, 4000)
+        this.get_data();
     },
 
 
@@ -163,23 +163,20 @@ var app = new _vue2.default({
                 _this.show = true;
             }, function (response) {});
         },
-
+        live_view: function live_view() {
+            this.live = true;
+            this.timer = setInterval(this.get_data, 4000);
+        },
         get_data: function get_data() {
             var _this2 = this;
 
             _axios2.default.get('/api').then(function (response) {
                 return _this2.loading = false, _this2.info = response.data;
             });
-        },
-        tare: function tare(event) {
-            this.$dialog.confirm('Please confirm to continue').then(function () {
-                console.log('Clicked on proceed');
-            }).catch(function () {
-                console.log('Clicked on cancel');
-            });
         }
     },
     beforeDestroy: function beforeDestroy() {
+        this.live = false;
         clearInterval(this.timer);
     }
 });

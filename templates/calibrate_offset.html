@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
     <nav class="breadcrumb">
-        <a href="/calibrate" class="button"><i class="icon icon-arrow-left"></i> back</a>
+        <a href="/calibrate" class="button-icon"><i class="icon icon-arrow-left"></i></a>
     </nav>
-    <h1>Calibrate Offset</h1>
-    <h2>Please enter the item's weight in grams.</h2>
+    <h1>Calibrate</h1>
     <div class="formWrapper">
         <form action="{{ url_for('config_scale') }}" method="post">
-            <input type="text" v-model="weight"  name="weight" placeholder="grams">
-            <button id="button" v-on:click="post" type="submit">Save <i class="icon icon-check"></i></button>
+            <input type="number" v-model="weight" name="weight" placeholder="grams">
+            <p>Please enter the item's weight in grams.</p>
+            <button id="button" v-on:click="post" type="submit">Calibrate <i class="icon icon-check"></i></button>
         </form>
     </div>
 {% endblock %}

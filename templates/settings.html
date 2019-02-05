@@ -1,32 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Settings</h1>
     <div class="setting-content">
         <h2>Device Information</h2>
         <div class="tile">
-            <h3>information</h3>
-            <p>client_id: <span class="bold">{{ client_id }}</span></p>
-            <p>country: <span class="bold">{{ country }}</span></p>
-            <p>zip code: <span class="bold">{{ zip_code }}</span></p>
+            <i class="icon icon-repeat live_view" v-on:click="live_view"></i>
+            <p v-if="live">live mode enabled</p>
+            <table>
+                <tr>
+                    <th>Sensor</th>
+                    <th>Data</th>
+                </tr>
+                <tr v-if="loading">
+                    <td>loading...</td>
+                    <td>please wait...</td>
+                </tr>
+                <tr v-for="(value, key) in info.data">
+                    <td>{{ "{{ key }}" }}</td>
+                    <td>{{ "{{ value }}" }}</td>
+                </tr>
+            </table>
         </div>
         <h2>Scale</h2>
         <div class="tile">
             <h3>tare</h3>
-            {% if not tare %}
-                <p>Set the scale to zero <i class="icon icon-alert-triangle"></i></p>
-                <a v-confirm="{message: 'Are you sure you want to set the scale to zero?'}" href="/tare" class="button">tare</a>
-            {% else %}
-                <p>The scale has now been set to zero</p>
-            {% endif %}
+            <p>Set the scale to zero <i class="icon icon-alert-triangle"></i></p>
+            <form action="{{ url_for('setting') }}" method="post">
+                <input hidden v-model="weight" type="number" name="tare" value="tare">
+                <button v-on:click="post" v-confirm="{message: 'Are you sure you want to set the scale to zero?'}" id="tare"
+                        type="submit">Tare
+                </button>
+            </form>
         </div>
         <div class="tile">
             <h3>reset</h3>
-            {% if not reset %}
-                <p>Reset all scale settings <i class="icon icon-alert-triangle"></i></p>
-                <a v-confirm="{message: 'Are you sure you want to reset all scale settings?'}" href="/reset" class="button">reset</a>
-            {% else %}
-                <p>The scale has now been reset!</p>
-            {% endif %}
+            <p>Reset all scale settings <i class="icon icon-alert-triangle"></i></p>
+            <form action="{{ url_for('setting') }}" method="post">
+                <input hidden v-model="weight" type="number" name="reset" value="reset">
+                <button v-on:click="post" v-confirm="{message: 'Are you sure you want to reset all scale settings?'}" id="reset"
+                        type="submit">Reset
+                </button>
+            </form>
         </div>
     </div>
 {% endblock %}
