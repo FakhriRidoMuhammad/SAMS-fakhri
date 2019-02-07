@@ -9,6 +9,7 @@ from main.api_data import ApiData
 
 application = Application()
 
+
 def start_datalog():
     application.start()
 
@@ -18,7 +19,7 @@ country = "DE"
 zip_code = 37139
 
 data_log_thread = Thread(target=start_datalog)
-#data_log_thread.start()
+data_log_thread.start()
 app = Flask(__name__)
 scale = Scale()
 
@@ -60,12 +61,11 @@ def settings():
 @app.route('/settings', methods=['POST'])
 def setting():
     try:
-        if request.form['tare'] == "":
-            scale.tare()
-            print("tare")
-        elif request.form['reset'] == "":
+        if request.form.get("reset") == "":
             scale.reset()
-            print("reset")
+        if request.form.get("tare") == "":
+            scale.tare()
+
     except Exception as e:
         print(e)
 

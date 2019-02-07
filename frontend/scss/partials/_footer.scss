@@ -24,4 +24,12 @@ footer {
       }
     }
   }
+
+  @include media($bp4) {
+    ul {
+      li {
+        padding: 0 100px;
+      }
+    }
+  }
 }

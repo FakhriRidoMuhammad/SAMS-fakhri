@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <nav class="breadcrumb">
-        <a href="/calibrate_offset" class="button"><i class="icon icon-arrow-left"></i> back</a>
-    </nav>
-    <h1>Calibrated</h1>
-    <h2 class="mb-standard">Your scale is now ready!</h2>
-    <a href="/measure" class="button">measure</a>
+    {% if calibrated %}
+        <h1>Your system is now ready to use!</h1>
+        <h1><i class="icon icon-check"></i></h1>
+        {%  else %}
+        <h1>Something went wrong!</h1>
+        <p>please try again...</p>
+        <a href="/" class="button">Start</a>
+    {% endif %}
 {% endblock %}

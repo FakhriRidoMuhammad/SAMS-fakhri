@@ -4,14 +4,15 @@ import scipy.io.wavfile
 from sensorlib.scale import Scale
 from sensorlib.dht22 import DHT22
 from sensorlib.ds1820 import DS18B20
-from scipy import signal
-from numpy import diff as np
 from numpy import median
 from threading import Thread
 from config.config import Config
 from api_plugin.sams_science import SamsApi
 from datetime import datetime
 from pytz import timezone
+from scipy import signal
+import numpy as np
+import math
 
 
 class Dataset:
@@ -54,19 +55,34 @@ class Dataset:
         return "2019-01-30T09:15:00Z"
 
     def get_fft_data(self):
-        # self.nWindow = 2 ^ 12
-        # nOverlap = self.nWindow / 2
-        # nFFT = self.nWindow
-
+        nWindow = pow(2,12)
+        nOverlap = nWindow / 2
+        nFFT = nWindow
+        self.fs = 48000
+        self.duration = 10
         try:
             print("recording audio data...")
-        # audiodata = sd.rec(self.duration * self.fs, samplerate=self.fs, channels=2, dtype='float64')
-        # sd.wait()
-        # print("finish recording audio data")
-        # [Pxx, F] = scipy.signal.welch(audiodata, fs=self.fs, window='hanning', nwindow=self.nWindow, noverlap=nOverlap,
-        #                               nfft=nFFT, detrend=False, return_onesided=True, scaling='density')
-        # print(Pxx)
-        # do some magic stuff with audio data
+            audiodata = sd.rec(self.duration * self.fs, samplerate=self.fs, channels=1, dtype='float64')
+            sd.wait()
+            data = audiodata.transpose()
+            print("finish recording audio data")
+            [pxx, F] = scipy.signal.welch(data, fs=self.fs, window='hanning', nperseg=nWindow, noverlap=nOverlap,
+                                          nfft=nFFT,
+                                          detrend=False, return_onesided=True, scaling='density')
+            print("fft finish")
+
+            self.dataset.append(
+                {
+                    "sourceId": "audiodata-".format(self.api.client_id),
+                    "value": [
+                        {
+                            "ts": self.get_time(),
+                            "value": 20*math.log10(abs(pxx).astype(int))
+                        },
+                    ]
+                }
+            )
+
         except Exception as e:
             print(self.error_message("audio", e))
 
@@ -173,17 +189,17 @@ class Dataset:
         self.dataset = []
         self.median_interval = int(self.config_data['INTERVAL']['median'])
         self.wait_time = int(self.config_data['INTERVAL']['wait_time_seconds'])
-        # fft_thread = Thread(target=self.get_fft_data)
+        fft_thread = Thread(target=self.get_fft_data)
         dht22_thread = Thread(target=self.get_dht22_data)
         ds18b20_thread = Thread(target=self.get_ds18b20_data)
         scale_thread = Thread(target=self.get_scale_data)
 
-        # fft_thread.start()
+        fft_thread.start()
         dht22_thread.start()
         ds18b20_thread.start()
         scale_thread.start()
 
-        # fft_thread.join()
+        fft_thread.join()
         dht22_thread.join()
         ds18b20_thread.join()
         scale_thread.join()

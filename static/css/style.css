@@ -1360,11 +1360,11 @@ body {
   font-weight: 300;
   color: #242017; }
 
-button, a.button, div.tile {
+button, a.button, div.setting-content div.item {
   -webkit-box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45);
   -moz-box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45);
   box-shadow: 3px 5px 6px 0 rgba(0, 0, 0, 0.45); }
-  button:hover, a.button:hover, div.tile:hover {
+  button:hover, a.button:hover, div.setting-content div.item:hover {
     -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75);
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.75); }
@@ -1472,8 +1472,8 @@ div.tile {
   -o-transition: all 0.3s ease;
   transition: all 0.3s ease;
   display: inline-block;
-  padding: 25px 50px;
-  width: calc(100% - 100px);
+  padding: 25px 20px;
+  width: calc(100% - 40px);
   margin-bottom: 55px;
   max-width: calc(320px - 100px);
   text-align: left;
@@ -1490,17 +1490,32 @@ div.tile {
     font-weight: bold; }
   @media screen and (min-width: 768px) {
     div.tile {
-      margin-right: 25px; }
-      div.tile:last-child {
-        margin-right: 0; } }
+      max-width: none; } }
+
+div.setting-content div.item {
+  margin-bottom: 50px; }
+
+@media screen and (min-width: 768px) {
+  div.setting-content {
+    display: table;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: stretch; }
+    div.setting-content div.item {
+      margin: 0 10px;
+      width: calc(33.33% - 10px); } }
 
 div.dg-container {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
   padding: 25px;
-  background: #f8c537; }
+  background: #f8c537;
+  text-align: center; }
 
 div.dg-content {
   font-size: 18px;
@@ -1548,6 +1563,9 @@ footer {
         font-size: 2.2rem;
         color: #fff;
         text-decoration: none; }
+  @media screen and (min-width: 768px) {
+    footer ul li {
+      padding: 0 100px; } }
 
 
 /*# sourceMappingURL=../beemo/script.js.map*/
