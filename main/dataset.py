@@ -22,8 +22,8 @@ class Dataset:
         self.DS18B20 = DS18B20()
         self.api = SamsApi()
 
-        self.median_interval = int
-        self.wait_time = int
+        self.median_interval = 0
+        self.wait_time = 0
 
         self.dataset = []
         self.temp = []
@@ -31,10 +31,10 @@ class Dataset:
         self.weight = []
         self.ds_temp = []
 
-        self.median_temp = float
-        self.median_hum = float
-        self.median_weight = float
-        self.median_ds_temp = float
+        self.median_temp = 0
+        self.median_hum = 0
+        self.median_weight = 0
+        self.median_ds_temp = 0
 
         self.duration = int(self.config_data['AUDIO']['duration'])
 
