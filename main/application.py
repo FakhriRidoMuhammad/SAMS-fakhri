@@ -12,6 +12,8 @@ class Application:
         self.api = SamsApi()
         self.config = Config()
         self.config_data = self.config.get_config_data()
+        self.repost_seconds = int(self.config_data['INTERVAL']['repost_seconds'])
+        self.app_wait_time = int(self.config_data['INTERVAL']['app_wait_seconds'])
 
         self.data = Dataset()
         self.dataset = dict()
@@ -40,8 +42,8 @@ class Application:
                     while not self.is_data_posted:
                         print("try to post dataset...")
                         self.is_data_posted = self.api.call(self.dataset)
-                        time.sleep(5)
-            print("wait 10 seconds...")
-            time.sleep(10)
+                        print("wait {0} seconds...".format(self.repost_seconds))
+                        time.sleep(self.repost_seconds)
+            time.sleep(int(self.app_wait_time))
 
 

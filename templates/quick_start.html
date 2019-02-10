@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if calibrated %}
+        <h1>Your system is ready to use!</h1>
+        <h1><i class="icon icon-check"></i></h1>
+
+    {% else %}
+        <h1>Quick start</h1>
+        <p>Make sure that the scale is empty before you visit this page.</p>
+        <p class="normal">Now place 10Kg on the scale and press "Save"</p>
+        <a href="/quick_setup" class="button">Save</a>
+    {% endif %}
+{% endblock %}
+

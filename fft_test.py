@@ -1,31 +1,12 @@
-import urllib
-import scipy.io.wavfile
-import math
-import sounddevice as sd
-import scipy.io.wavfile
+import datetime
+from pytz import timezone
 
-from scipy import signal
-import numpy
+test = "2019-01-30T09:15:00Z"
 
-nWindow = pow(2, 12)
-nOverlap = nWindow / 2
-nFFT = nWindow
-fs = 48000
-duration = 10
-try:
-    print("recording audio data...")
-    audiodata = sd.rec(duration * fs, samplerate=fs, channels=1, dtype='float64')
-    sd.wait()
-    print(len(audiodata))
-    data = audiodata.transpose()
-    print("finish recording audio data")
-    [Pxx, F] = scipy.signal.welch(data, fs, 'hanning', nWindow, nOverlap, nFFT,
-                                  False, True, 'density')
-    print("nWindow")
-    print(nWindow)
-    print("nOverlap")
-    print(nOverlap)
-    print(Pxx.astype(int))
 
-except Exception as e:
-    print(e)
+def get_time():
+    now = datetime.datetime.utcnow()
+    return now.strftime('%Y-%m-%dT%H:%M:%S') + now.strftime('.%f')[:0] + 'Z'
+
+
+print(get_time())

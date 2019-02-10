@@ -36,21 +36,28 @@ def calibrate():
     return render_template('calibrate.html', title="calibrate")
 
 
-@app.route('/start_scale')
-def start_calibrate():
-    scale.setup()
-    return render_template('start_scale.html', title="calibrate")
-
-
 @app.route('/calibrate_offset')
 def calibrate_offset():
     return render_template('calibrate_offset.html', title="calibrate offset")
 
 
-@app.route('/calibrate_offset', methods=['POST'])
+@app.route('/quick_start')
+def quick_start():
+    return render_template('quick_start.html', title="quick start")
+
+
+@app.route('/quick_setup')
+def quick_setup():
+    scale.calibrate(10000)
+    cal = scale.calibrated()
+    return render_template('calibrated.html', title="calibrate offset", calibrated=cal)
+
+
+@app.route('/calibrate_offset')
 def config_scale():
     scale.calibrate(request.form['weight'])
-    return render_template('calibrated.html', title="calibrated", weight=scale.get_data())
+    cal = scale.calibrated()
+    return render_template('calibrated.html', title="calibrated", calibrated=cal)
 
 
 @app.route('/settings')

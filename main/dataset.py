@@ -8,11 +8,9 @@ from numpy import median
 from threading import Thread
 from config.config import Config
 from api_plugin.sams_science import SamsApi
-from datetime import datetime
-from pytz import timezone
+import datetime
 from scipy import signal
 import numpy as np
-import math
 
 
 class Dataset:
@@ -24,67 +22,74 @@ class Dataset:
         self.DS18B20 = DS18B20()
         self.api = SamsApi()
 
-        self.median_interval = 0
-        self.wait_time = 0
+        self.median_interval = int
+        self.wait_time = int
 
         self.dataset = []
         self.temp = []
         self.hum = []
         self.weight = []
         self.ds_temp = []
-        self.fft_data = ""
 
-        self.median_temp = 0
-        self.median_hum = 0
-        self.median_weight = 0
-        self.median_ds_temp = 0
+        self.median_temp = float
+        self.median_hum = float
+        self.median_weight = float
+        self.median_ds_temp = float
 
-        self.duration = ""
-        self.fs = ""
-        self.nWindow = ""
-
-    @staticmethod
-    def error_message(device, exception_msg):
-        return "something went wrong by collecting the {0} dataset! Error: {1}".format(device, exception_msg)
+        self.duration = int(self.config_data['AUDIO']['duration'])
 
     @staticmethod
     def get_time():
-        fmt = "%Y-%m-%d %H:%M:%S %Z%z"
-        now_utc = datetime.now(timezone('UTC'))
-        now_pacific = now_utc.astimezone(timezone('US/Pacific'))
-        return "2019-01-30T09:15:00Z"
+        now = datetime.datetime.utcnow()
+        return now.strftime('%Y-%m-%dT%H:%M:%S') + now.strftime('.%f')[:0] + 'Z'
+
+    def error(self, device, error):
+        self.dataset.append(
+            {
+                "sourceId": "{0}-{1}".format(device, self.api.client_id),
+                "value": [
+                    {
+                        "ts": self.get_time(),
+                        "value": 0
+                    },
+                ]
+            }
+        )
+        print("something went wrong by collecting the {0} dataset! Error: {1}".format(device, error))
 
     def get_fft_data(self):
-        nWindow = pow(2,12)
-        nOverlap = nWindow / 2
-        nFFT = nWindow
-        self.fs = 48000
-        self.duration = 10
+        n_window = pow(2, 12)
+        n_overlap = n_window / 2
+        n_fft = n_window
+        fs = 48000
+
         try:
             print("recording audio data...")
-            audiodata = sd.rec(self.duration * self.fs, samplerate=self.fs, channels=1, dtype='float64')
+            audiodata = sd.rec(self.duration * fs, samplerate=fs, channels=1, dtype='float64')
             sd.wait()
             data = audiodata.transpose()
             print("finish recording audio data")
-            [pxx, F] = scipy.signal.welch(data, fs=self.fs, window='hanning', nperseg=nWindow, noverlap=nOverlap,
-                                          nfft=nFFT,
+            [pxx, F] = scipy.signal.welch(data, fs=fs, window='hanning', nperseg=n_window, noverlap=n_overlap,
+                                          nfft=n_fft,
                                           detrend=False, return_onesided=True, scaling='density')
             print("fft finish")
+            temp_data = np.array(pxx).astype(float)
+            data = temp_data.tolist()
 
             self.dataset.append(
                 {
-                    "sourceId": "audiodata-".format(self.api.client_id),
+                    "sourceId": "audio-".format(self.api.client_id),
                     "value": [
                         {
                             "ts": self.get_time(),
-                            "value": 20*math.log10(abs(pxx).astype(int))
+                            "value": data
                         },
                     ]
                 }
             )
 
         except Exception as e:
-            print(self.error_message("audio", e))
+            self.error("audio", e)
 
         return True
 
@@ -113,13 +118,13 @@ class Dataset:
                                     {
                                         "ts": self.get_time(),
                                         "value": float(self.median_ds_temp)
-                                     },
+                                    },
                                 ]
                             }
                         )
                         self.median_ds_temp = ""
         except Exception as e:
-            print(self.error_message("ds18b20", e))
+            self.error("ds18b20", e)
 
     def get_dht22_data(self):
         try:
@@ -159,7 +164,7 @@ class Dataset:
             del self.temp[:]
             del self.hum[:]
         except Exception as e:
-            print(self.error_message("dht22", e))
+            self.error("dht22", e)
 
     def get_scale_data(self):
         try:
@@ -173,7 +178,7 @@ class Dataset:
             del self.weight[:]
             self.dataset.append(
                 {
-                    "sourceId": self.api.client_id,
+                    "sourceId": "scale-{0}".format(self.api.client_id),
                     "value": [
                         {
                             "ts": self.get_time(),
@@ -183,7 +188,7 @@ class Dataset:
                 }
             )
         except Exception as e:
-            print(self.error_message("scale", e))
+            self.error("scale", e)
 
     def get_dataset(self):
         self.dataset = []
@@ -195,13 +200,13 @@ class Dataset:
         scale_thread = Thread(target=self.get_scale_data)
 
         fft_thread.start()
-        dht22_thread.start()
         ds18b20_thread.start()
+        dht22_thread.start()
         scale_thread.start()
 
         fft_thread.join()
-        dht22_thread.join()
         ds18b20_thread.join()
+        dht22_thread.join()
         scale_thread.join()
 
         return self.dataset
