@@ -31,9 +31,10 @@ class Log:
 
     @staticmethod
     def read_file(path):
-        f = open(path, "r")
+        with open(path) as json_file:
+            data = json.load(json_file)
 
-        return f.read()
+        return data
 
     def has_log_files(self):
         if not os.listdir(self.path):

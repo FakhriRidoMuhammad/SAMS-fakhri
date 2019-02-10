@@ -78,7 +78,7 @@ class Dataset:
 
             self.dataset.append(
                 {
-                    "sourceId": "audio-".format(self.api.client_id),
+                    "sourceId": "audio-{0}".format(self.api.client_id),
                     "value": [
                         {
                             "ts": self.get_time(),
@@ -208,5 +208,7 @@ class Dataset:
         ds18b20_thread.join()
         dht22_thread.join()
         scale_thread.join()
+
+        print(self.dataset)
 
         return self.dataset
