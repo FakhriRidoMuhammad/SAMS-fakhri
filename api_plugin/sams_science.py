@@ -7,7 +7,7 @@ class SamsApi:
         self.config = configparser.ConfigParser()
         self.token_config = configparser.ConfigParser()
         self.config_file = '/boot/credentials.ini'
-        self.token_config_file = '/home/pi/config/config.ini'
+        self.token_config_file = '/var/www/upload/config/config.ini'
         self.config.read(self.config_file)
         self.secret_data = self.config['DEFAULT']
         self.client_id = self.secret_data['client_id']

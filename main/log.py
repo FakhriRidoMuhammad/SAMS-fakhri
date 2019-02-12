@@ -6,7 +6,7 @@ from api_plugin.sams_science import SamsApi
 
 class Log:
     def __init__(self):
-        self.path = '/home/pi/log/'
+        self.path = '/var/www/upload/log/'
         self.api = SamsApi()
         self.status = []
         self.files = os.listdir(self.path)
