@@ -209,6 +209,4 @@ class Dataset:
         dht22_thread.join()
         scale_thread.join()
 
-        print(self.dataset)
-
         return self.dataset
