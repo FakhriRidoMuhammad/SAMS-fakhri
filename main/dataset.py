@@ -61,7 +61,7 @@ class Dataset:
         n_window = pow(2, 12)
         n_overlap = n_window / 2
         n_fft = n_window
-        fs = 48000
+        fs = 16000
 
         try:
             print("recording audio data...")
@@ -69,7 +69,7 @@ class Dataset:
             sd.wait()
             data = audiodata.transpose()
             print("finish recording audio data")
-            [pxx, F] = scipy.signal.welch(data, fs=fs, window='hanning', nperseg=n_window, noverlap=n_overlap,
+            [F, pxx] = scipy.signal.welch(data, fs=fs, window='hanning', nperseg=n_window, noverlap=n_overlap,
                                           nfft=n_fft,
                                           detrend=False, return_onesided=True, scaling='density')
             print("fft finish")
