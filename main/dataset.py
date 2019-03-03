@@ -65,17 +65,6 @@ class Dataset:
 
         try:
             print("recording audio data...")
-            print("in 5")
-            time.sleep(1)
-            print("in 4")
-            time.sleep(1)
-            print("in 3")
-            time.sleep(1)
-            print("in 2")
-            time.sleep(1)
-            print("in 1")
-            time.sleep(1)
-            print("now")
             audiodata = sd.rec(self.duration * fs, samplerate=fs, channels=1, dtype='float64')
             sd.wait()
             data = audiodata.transpose()
@@ -90,15 +79,14 @@ class Dataset:
             self.dataset.append(
                 {
                     "sourceId": "audio-{0}".format(self.api.client_id),
-                    "value": [
+                    "values": [
                         {
                             "ts": self.get_time(),
-                            "value": data
+                            "values": data[0]
                         },
                     ]
                 }
             )
-            print(data)
 
         except Exception as e:
             self.error("audio", e)
@@ -191,7 +179,7 @@ class Dataset:
             self.dataset.append(
                 {
                     "sourceId": "scale-{0}".format(self.api.client_id),
-                    "value": [
+                    "values": [
                         {
                             "ts": self.get_time(),
                             "value": float(self.median_weight)
