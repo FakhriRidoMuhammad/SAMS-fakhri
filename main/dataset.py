@@ -65,6 +65,17 @@ class Dataset:
 
         try:
             print("recording audio data...")
+            print("in 5")
+            time.sleep(1)
+            print("in 4")
+            time.sleep(1)
+            print("in 3")
+            time.sleep(1)
+            print("in 2")
+            time.sleep(1)
+            print("in 1")
+            time.sleep(1)
+            print("now")
             audiodata = sd.rec(self.duration * fs, samplerate=fs, channels=1, dtype='float64')
             sd.wait()
             data = audiodata.transpose()
@@ -87,6 +98,7 @@ class Dataset:
                     ]
                 }
             )
+            print(data)
 
         except Exception as e:
             self.error("audio", e)
