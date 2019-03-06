@@ -35,3 +35,4 @@ if online_version > offline_version:
     print("update available")
     g = git.cmd.Git(os.getcwd())
     g.pull("origin master")
+    print("yay")
