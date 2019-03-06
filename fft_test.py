@@ -34,7 +34,7 @@ offline_version = float(offline_version['DEFAULT']['version'])
 
 if online_version > offline_version:
     print("update available")
+    process = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE)
     add = subprocess.Popen(["git", "add", "."], stdout=subprocess.PIPE)
     commit = subprocess.Popen(["git", "commit", "-a", "-m", "update"], stdout=subprocess.PIPE)
-    process = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE)
     output = process.communicate()[0]
