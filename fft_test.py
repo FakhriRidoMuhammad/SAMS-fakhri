@@ -2,6 +2,7 @@ import requests
 import os
 import configparser
 from config.config import Config
+import subprocess
 import git
 
 #g = git.cmd.Git(os.getcwd())
@@ -33,6 +34,7 @@ offline_version = float(offline_version['DEFAULT']['version'])
 
 if online_version > offline_version:
     print("update available")
-    g = git.cmd.Git(os.getcwd())
-    g.pull("origin master")
-    print("yay")
+    add = subprocess.Popen(["git", "add", "."], stdout=subprocess.PIPE)
+    commit = subprocess.Popen(["git", "commit", "-a", "-m", "update"], stdout=subprocess.PIPE)
+    process = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE)
+    output = process.communicate()[0]
