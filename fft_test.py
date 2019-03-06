@@ -17,7 +17,7 @@ def get_off_config_data():
 
 
 def get_on_config_data():
-    url = 'https://raw.githubusercontent.com/anderswodenker/sams/master/config/config.ini'
+    url = 'https://raw.githubusercontent.com/anderswodenker/sams/master/config/version.ini'
     r = requests.get(url)
 
     with open('/var/www/upload/config/online_config.ini', 'wb') as f:
@@ -28,11 +28,11 @@ def get_on_config_data():
 
 offline_version = get_off_config_data()
 online_version = get_on_config_data()
-online_version = online_version['DEFAULT']['version']
-offline_version = offline_version['DEFAULT']['version']
+online_version = float(online_version['DEFAULT']['version'])
+offline_version = float(offline_version['DEFAULT']['version'])
 
 
-print(online_version['DEFAULT']['version'])
+print(online_version)
 print(offline_version)
 
 
