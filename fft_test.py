@@ -36,14 +36,17 @@ offline_version = float(offline_version['DEFAULT']['version'])
 
 def pull():
     process = subprocess.Popen(["git", "pull", "origin", "master"], stdout=subprocess.PIPE)
+    output = process.communicate()[0]
 
 
 def commit():
     commit = subprocess.Popen(["git", "commit", "-a", "-m", "update"], stdout=subprocess.PIPE)
+    output = commit.communicate()[0]
 
 
 def add():
     add = subprocess.Popen(["git", "add", "."], stdout=subprocess.PIPE)
+    output = add.communicate()[0]
 
 
 thread_pull = Thread(target=pull)
