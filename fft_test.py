@@ -39,14 +39,14 @@ def pull():
     output = process.communicate()[0]
 
 
-def commit():
-    commit = subprocess.Popen(["git", "commit", "-a", "-m", "update"], stdout=subprocess.PIPE)
-    output = commit.communicate()[0]
-
-
 def add():
     add = subprocess.Popen(["git", "add", "."], stdout=subprocess.PIPE)
     output = add.communicate()[0]
+
+
+def commit():
+    commit = subprocess.Popen(["git", "commit", "-a", "-m", "update"], stdout=subprocess.PIPE)
+    output = commit.communicate()[0]
 
 
 thread_pull = Thread(target=pull)

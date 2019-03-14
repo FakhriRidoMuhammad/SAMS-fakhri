@@ -24,8 +24,8 @@ class DS18B20:
 
     def __init__(self):
         # load required kernel modules
-        os.system('modprobe w1-gpio')
-        os.system('modprobe w1-therm')
+        os.system('sudo modprobe w1-gpio')
+        os.system('sudo modprobe w1-therm')
 
         # Find file names for the sensor(s)
         base_dir = '/sys/bus/w1/devices/'

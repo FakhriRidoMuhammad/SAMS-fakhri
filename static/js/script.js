@@ -146,7 +146,7 @@ var app = new _vue2.default({
         live: false
     },
     mounted: function mounted() {
-        this.get_data();
+        //this.get_data();
     },
 
 
@@ -164,8 +164,8 @@ var app = new _vue2.default({
             }, function (response) {});
         },
         live_view: function live_view() {
-            this.live = true;
-            this.timer = setInterval(this.get_data, 4000);
+            //this.live = true;
+            //this.timer = setInterval(this.get_data, 4000)
         },
         get_data: function get_data() {
             var _this2 = this;
@@ -176,8 +176,8 @@ var app = new _vue2.default({
         }
     },
     beforeDestroy: function beforeDestroy() {
-        this.live = false;
-        clearInterval(this.timer);
+        // this.live = false;
+        // clearInterval(this.timer)
     }
 });
 

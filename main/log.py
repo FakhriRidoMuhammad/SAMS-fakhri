@@ -28,6 +28,7 @@ class Log:
 
     def list_dir(self):
         self.files = os.listdir(self.path)
+        self.files.sort()
 
     @staticmethod
     def read_file(path):
@@ -44,18 +45,18 @@ class Log:
 
     def post_log_files(self, dataset):
         try:
-            self.files = os.listdir(self.path)
             print("log dataset...")
             self.insert(dataset)
             self.list_dir()
             print("list directory: {0}".format(self.files))
             while self.has_log_files():
-                for x in range(len(self.files)):
-                    file = self.read_file(self.path + str(self.files[x]))
+                self.list_dir()
+                for x in self.files:
+                    file = self.read_file(self.path + str(x))
                     print("try to post data")
                     if self.api.call(file):
                         print("status code ok! Delete file...")
-                        os.remove(self.path + str(self.files[x]))
+                        os.remove(self.path + str(x))
                     time.sleep(5)
 
             print("all log files posted")

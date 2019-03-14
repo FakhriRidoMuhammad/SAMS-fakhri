@@ -12,7 +12,6 @@ class Scale:
         self.ratio = 0  # scale ratio for calibration
         self.offset = 0
         self.value = 0
-        self.measure_weight = 0
         self.result = 0
         self.data = 0
         if self.is_calibrated:
@@ -22,7 +21,7 @@ class Scale:
 
     def setup(self):
         try:
-            self.data = self.hx.get_raw_data_mean(times=1)
+            self.data = self.hx.get_raw_data_mean(times=10)
             self.result = self.hx.zero(times=10)
             self.data = self.hx.get_data_mean(times=10)
         except Exception as e:
@@ -41,9 +40,11 @@ class Scale:
 
     def get_data(self):
         try:
-            val = self.hx.get_weight_mean(6)
-            self.measure_weight = round((val / 1000), 2)
-            return self.measure_weight
+            self.hx.power_up()
+            val = self.hx.get_weight_mean(5)
+            measure_weight = round((val / 1000), 2)
+            self.hx.power_down()
+            return measure_weight
         except Exception as e:
             print("Scale or HX711 connected? : {0}".format(e))
 

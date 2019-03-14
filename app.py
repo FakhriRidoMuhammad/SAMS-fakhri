@@ -5,7 +5,9 @@ from main.application import Application
 from flask import request
 from threading import Thread
 from main.api_data import ApiData
+import subprocess
 
+restart = subprocess.Popen(["sudo", "/etc/init.d/nginx", "restart"], stdout=subprocess.PIPE)
 
 application = Application()
 
@@ -14,14 +16,13 @@ def start_datalog():
     application.start()
 
 
-client_id = "test_id"
-country = "DE"
-zip_code = 37139
-
-data_log_thread = Thread(target=start_datalog)
-data_log_thread.start()
-app = Flask(__name__)
 scale = Scale()
+data_log_thread = Thread(target=start_datalog)
+
+if scale.calibrated():
+    data_log_thread.start()
+
+app = Flask(__name__)
 
 
 @app.route('/')
@@ -53,7 +54,7 @@ def quick_setup():
     return render_template('calibrated.html', title="calibrate offset", calibrated=cal)
 
 
-@app.route('/calibrate_offset')
+@app.route('/calibrate_offset', methods=['POST'])
 def config_scale():
     scale.calibrate(request.form['weight'])
     cal = scale.calibrated()

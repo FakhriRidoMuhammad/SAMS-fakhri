@@ -28,7 +28,7 @@ var app = new Vue({
         live: false
     },
     mounted() {
-         this.get_data();
+         //this.get_data();
     },
 
     methods: {
@@ -45,8 +45,8 @@ var app = new Vue({
             });
         },
         live_view() {
-            this.live = true;
-            this.timer = setInterval(this.get_data, 4000)
+            //this.live = true;
+            //this.timer = setInterval(this.get_data, 4000)
         },
 
         get_data() {
@@ -59,7 +59,7 @@ var app = new Vue({
         },
     },
     beforeDestroy() {
-        this.live = false;
-        clearInterval(this.timer)
+        // this.live = false;
+        // clearInterval(this.timer)
     }
 });

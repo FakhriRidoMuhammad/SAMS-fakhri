@@ -114,7 +114,7 @@ class Dataset:
                         self.dataset.append(
                             {
                                 "sourceId": "dsb18b20-{0}-{1}".format(x, self.api.client_id),
-                                "value": [
+                                "values": [
                                     {
                                         "ts": self.get_time(),
                                         "value": float(self.median_ds_temp)
@@ -171,6 +171,7 @@ class Dataset:
             for i in range(self.median_interval):
                 print("take data from sensors...")
                 self.weight.append(self.scale.get_data())
+                print(self.weight)
                 time.sleep(self.wait_time)
 
             self.median_weight = median(self.weight)
