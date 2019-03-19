@@ -1,22 +1,20 @@
-from flask import Flask
-from flask import render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from sensorlib.scale import Scale
 from main.application import Application
-from flask import request
 from threading import Thread
 from main.api_data import ApiData
 
 application = Application()
 
 
-def start_datalog():
+def start_main_app():
     application.start()
 
 
-scale = Scale()
-data_log_thread = Thread(target=start_datalog)
+scale = Scale()  # Scale for /api data
+data_log_thread = Thread(target=start_main_app)  # Thread to start main application
 
-if scale.calibrated():
+if scale.calibrated():  # is scale calibrated, start the main application
     data_log_thread.start()
 
 app = Flask(__name__)
@@ -28,43 +26,44 @@ def start():
     return render_template('start.html', title="start", calibrated=cal)
 
 
-@app.route('/calibrate')
+@app.route('/calibrate')  # start calibrate the scale
 def calibrate():
     scale.setup()
     return render_template('calibrate.html', title="calibrate")
 
 
-@app.route('/calibrate_offset')
+@app.route('/calibrate_offset')  # calibrate the offset starting
 def calibrate_offset():
     return render_template('calibrate_offset.html', title="calibrate offset")
 
 
-@app.route('/quick_start')
+@app.route('/quick_start')  # start quick calibrate the scale
 def quick_start():
     return render_template('quick_start.html', title="quick start")
 
 
 @app.route('/quick_setup')
 def quick_setup():
-    scale.calibrate(10000)
+    scale.calibrate(10000)  # quick calibrate the scale with 10 Kg
     cal = scale.calibrated()
     return render_template('calibrated.html', title="calibrate offset", calibrated=cal)
 
 
-@app.route('/calibrate_offset', methods=['POST'])
+@app.route('/calibrate_offset', methods=['POST'])  # send known weight to calibrate
 def config_scale():
     scale.calibrate(request.form['weight'])
     cal = scale.calibrated()
     return render_template('calibrated.html', title="calibrated", calibrated=cal)
 
 
-@app.route('/settings')
+@app.route('/settings')  # setting page
 def settings():
     return render_template('settings.html', title="setting")
 
 
 @app.route('/settings', methods=['POST'])
 def setting():
+    # is tare or reset posted to settings?
     try:
         if request.form.get("reset") == "":
             scale.reset()
@@ -77,7 +76,7 @@ def setting():
     return render_template('settings.html', title="setting")
 
 
-@app.route('/api')
+@app.route('/api')  # need api data to debug sensors
 def summary():
     api_data = ApiData()
     json_data = api_data.get_data()
