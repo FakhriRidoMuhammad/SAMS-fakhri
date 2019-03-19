@@ -67,16 +67,16 @@ class SamsApi:
             second_call = self.send_data(payload, has_token=False)
             if second_call == 200:
                 print("send to api...ok!")
-                return True
+                return api_call
             else:
                 print("send to api failed! Status code: {0}".format(second_call))
                 return False
         elif api_call == 200:
             print("send to api...ok!")
-            return True
+            return api_call
         else:
             print("send to api failed! Status code: {0}".format(api_call))
-            return False
+            return api_call
 
     def read_token(self):
         print("read token...")

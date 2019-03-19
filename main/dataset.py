@@ -5,12 +5,12 @@ from sensorlib.scale import Scale
 from sensorlib.dht22 import DHT22
 from sensorlib.ds1820 import DS18B20
 from numpy import median
-from threading import Thread
 from config.config import Config
 from api_plugin.sams_science import SamsApi
 import datetime
 from scipy import signal
 import numpy as np
+from main.error import ErrorLog
 
 
 class Dataset:
@@ -21,6 +21,7 @@ class Dataset:
         self.scale = Scale()
         self.DS18B20 = DS18B20()
         self.api = SamsApi()
+        self.error_log = ErrorLog()
 
         self.median_interval = 0
         self.wait_time = 0
@@ -55,7 +56,7 @@ class Dataset:
                 ]
             }
         )
-        print("something went wrong by collecting the {0} dataset! Error: {1}".format(device, error))
+        self.error_log.write_log("something went wrong by collecting the {0} dataset! Error: {1}".format(device, error))
 
     def get_fft_data(self):
         n_window = pow(2, 12)
@@ -64,15 +65,12 @@ class Dataset:
         fs = 16000
 
         try:
-            print("recording audio data...")
             audiodata = sd.rec(self.duration * fs, samplerate=fs, channels=1, dtype='float64')
             sd.wait()
             data = audiodata.transpose()
-            print("finish recording audio data")
             [F, pxx] = scipy.signal.welch(data, fs=fs, window='hanning', nperseg=n_window, noverlap=n_overlap,
                                           nfft=n_fft,
                                           detrend=False, return_onesided=True, scaling='density')
-            print("fft finish")
             temp_data = np.array(pxx).astype(float)
             data = temp_data.tolist()
 
@@ -88,8 +86,18 @@ class Dataset:
                 }
             )
 
-        except Exception as e:
-            self.error("audio", e)
+        except Exception:
+            self.dataset.append(
+                {
+                    "sourceId": "{0}-{1}".format("audio", self.api.client_id),
+                    "value": [
+                        {
+                            "ts": self.get_time(),
+                            "value": [0, 0]
+                        },
+                    ]
+                }
+            )
 
         return True
 
@@ -100,10 +108,10 @@ class Dataset:
                 for x in range(sensor_counter):
                     self.median_ds_temp = []
                     for i in range(self.median_interval):
-                        print("take ds18b20 data from sensors...")
                         value = self.DS18B20.tempC(x)
                         if value == 998 or value == 85.0:
-                            print("DS18B20 does not work properly...")
+                            self.error_log.write_log(
+                                "DS18B20 does not work properly...")
                         else:
                             self.ds_temp.append(self.DS18B20.tempC(x))
                             time.sleep(self.wait_time)
@@ -123,13 +131,13 @@ class Dataset:
                             }
                         )
                         self.median_ds_temp = ""
+
         except Exception as e:
             self.error("ds18b20", e)
 
     def get_dht22_data(self):
         try:
             for i in range(self.median_interval):
-                print("take dht22 data from sensors...")
                 dhtdata = self.dht22.get_data()
                 self.temp.append(dhtdata['temp'])
                 self.hum.append(dhtdata['hum'])
@@ -163,13 +171,13 @@ class Dataset:
 
             del self.temp[:]
             del self.hum[:]
+
         except Exception as e:
             self.error("dht22", e)
 
     def get_scale_data(self):
         try:
             for i in range(self.median_interval):
-                print("take data from sensors...")
                 self.weight.append(self.scale.get_data())
                 print(self.weight)
                 time.sleep(self.wait_time)
@@ -192,22 +200,16 @@ class Dataset:
             self.error("scale", e)
 
     def get_dataset(self):
-        self.dataset = []
-        self.median_interval = int(self.config_data['INTERVAL']['median'])
-        self.wait_time = int(self.config_data['INTERVAL']['wait_time_seconds'])
-        fft_thread = Thread(target=self.get_fft_data)
-        dht22_thread = Thread(target=self.get_dht22_data)
-        ds18b20_thread = Thread(target=self.get_ds18b20_data)
-        scale_thread = Thread(target=self.get_scale_data)
+        try:
+            self.dataset = []
+            self.median_interval = int(self.config_data['INTERVAL']['median'])
+            self.wait_time = int(self.config_data['INTERVAL']['wait_time_seconds'])
 
-        fft_thread.start()
-        ds18b20_thread.start()
-        dht22_thread.start()
-        scale_thread.start()
-
-        fft_thread.join()
-        ds18b20_thread.join()
-        dht22_thread.join()
-        scale_thread.join()
+            self.get_fft_data()
+            self.get_scale_data()
+            self.get_dht22_data()
+            self.get_ds18b20_data()
+        except Exception as e:
+            self.error_log.write_log("Dataset error: {}".format(e))
 
         return self.dataset

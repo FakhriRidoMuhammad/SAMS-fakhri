@@ -2,6 +2,7 @@ import json
 import os
 import time
 from api_plugin.sams_science import SamsApi
+from main.error import ErrorLog
 
 
 class Log:
@@ -10,9 +11,9 @@ class Log:
         self.api = SamsApi()
         self.status = []
         self.files = os.listdir(self.path)
+        self.error = ErrorLog()
 
     def insert(self, json_data):
-        print("insert data...")
         files = os.listdir(self.path)
         if len(files) != 0:
             file = int(
@@ -45,22 +46,23 @@ class Log:
 
     def post_log_files(self, dataset):
         try:
-            print("log dataset...")
+            self.error.write_log("log dataset...")
             self.insert(dataset)
             self.list_dir()
-            print("list directory: {0}".format(self.files))
             while self.has_log_files():
                 self.list_dir()
                 for x in self.files:
                     file = self.read_file(self.path + str(x))
-                    print("try to post data")
-                    if self.api.call(file):
-                        print("status code ok! Delete file...")
+                    self.error.write_log("try to post data")
+                    if self.api.call(file) == 200:
+                        self.error.write_log("status code ok! Delete file...")
+                        os.remove(self.path + str(x))
+                    if self.api.call(file) == 500:
+                        self.error.write_log("File corrupted! Delete file...")
                         os.remove(self.path + str(x))
                     time.sleep(5)
-
-            print("all log files posted")
             return True
 
         except Exception as e:
             print(e)
+            self.error.write_log(e)

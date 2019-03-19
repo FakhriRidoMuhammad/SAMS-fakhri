@@ -1,555 +1,179 @@
-#!/usr/bin/env python3
+"""
+HX711 Load cell amplifier Python Library
+Original source: https://gist.github.com/underdoeg/98a38b54f889fce2b237
+Documentation source: https://github.com/aguegu/ardulibs/tree/master/hx711
+Adapted by 2017 Jiri Dohnalek
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+
+
 import RPi.GPIO as GPIO
 import time
-import statistics as stat
+import sys
 
 
 class HX711:
-    def __init__(self, dout_pin, pd_sck_pin, gain_channel_A=128, select_channel='A'):
-        if (isinstance(dout_pin, int) and
-                isinstance(pd_sck_pin, int)): 	# just chack of it is integer
-            self._pd_sck = pd_sck_pin 	# init pd_sck pin number
-            self._dout = dout_pin 		# init data pin number
-        else:
-            raise TypeError('dout_pin and pd_sck_pin have to be pin numbers.\nI have got dout_pin: ' \
-                            + str(dout_pin) + \
-                            ' and pd_sck_pin: ' + str(pd_sck_pin) + '\n')
 
-        self._gain_channel_A = 0 	# init to 0
-        self._offset_A_128 = 0		# init offset for channel A and gain 128
-        self._offset_A_64 = 0		# init offset for channel A and gain 64
-        self._offset_B = 0 		# init offset for channel B
-        self._last_raw_data_A_128 = 0	# init last data to 0 for channel A and gain 128
-        self._last_raw_data_A_64 = 0 	# init last data to 0 for channelA and gain 64
-        self._last_raw_data_B = 0 	# init last data to 0 for channel B
-        self._wanted_channel = ''	# init to empty string
-        self._current_channel = ''	# init to empty string
-        self._scale_ratio_A_128 = 1	# init to 1
-        self._scale_ratio_A_64 = 1	# init to 1
-        self._scale_ratio_B = 1		# init to 1
-        self._debug_mode = False	# init debug mode to False
-        self._pstdev_filter = True	# pstdev filter is by default ON
+    def __init__(self, dout, pd_sck, gain=128):
+        """
+        Set GPIO Mode, and pin for communication with HX711
+        :param dout: Serial Data Output pin
+        :param pd_sck: Power Down and Serial Clock Input pin
+        :param gain: set gain 128, 64, 32
+        """
+        self.GAIN = 0
+        self.OFFSET = 0
+        self.SCALE = 1
 
-        GPIO.setmode(GPIO.BCM) 			# set GPIO pin mode to BCM numbering
-        GPIO.setup(self._pd_sck, GPIO.OUT)	# pin _pd_sck is output only
-        GPIO.setup(self._dout, GPIO.IN)		# pin _dout is input only
-        self.select_channel(select_channel)	# call select channel function
-        self.set_gain_A(gain_channel_A) 	# init gain for channel A
+        # Setup the gpio pin numbering system
+        GPIO.setmode(GPIO.BCM)
 
-    ############################################################
-    # select_channel function evaluates if the desired channel #
-    # is valid and then sets the _wanted_channel.		   #
-    # If returns True then OK 				   #
-    # INPUTS: channel ('A'|'B') 				   #
-    # OUTPUTS: BOOL  					   #
-    ############################################################
-    def select_channel(self, channel):
-        if (channel == 'A'):
-            self._wanted_channel = 'A'
-        elif (channel == 'B'):
-            self._wanted_channel = 'B'
-        else:
-            raise ValueError('channel has to be "A" or "B".\nI have got: ' \
-                             + str(channel))
-        # after changing channel or gain it has to wait 50 ms to allow adjustment.
-        # the data before is garbage and cannot be used.
-        self._read()
-        time.sleep(0.5)
-        return True
+        # Set the pin numbers
+        self.PD_SCK = pd_sck
+        self.DOUT = dout
 
-    ############################################################
-    # set_gain_A function sets gain for channel A. 		   #
-    # allowed values are 128 or 64. If return True then OK	   #
-    # INPUTS: gain (64|128) 				   #
-    # OUTPUTS: BOOL 					   #
-    ############################################################
-    def set_gain_A(self, gain):
-        if gain == 128:
-            self._gain_channel_A = gain
-        elif gain == 64:
-            self._gain_channel_A = gain
-        else:
-            raise ValueError('gain has to be 128 or 64.\nI have got: '
-                             + str(gain))
-        # after changing channel or gain it has to wait 50 ms to allow adjustment.
-        # the data before is garbage and cannot be used.
-        self._read()
-        time.sleep(0.5)
-        return True
+        # Setup the GPIO Pin as output
+        GPIO.setup(self.PD_SCK, GPIO.OUT)
 
-    ############################################################
-    # zero is function which sets the current data as 	   #
-    # an offset for particulart channel. It can be used for    #
-    # subtracting the weight of the packaging. 		   #
-    # max value of times parameter is 99. min 1. Default 10.   #
-    # INPUTS: times # how many times do reading and then mean  #
-    # OUTPUTS: BOOL 	# if True it is OK		   #
-    ############################################################
-    def zero(self, times=10):
-        if times > 0 and times < 100:
-            result = self.get_raw_data_mean(times)
-            if result != False:
-                if (self._current_channel == 'A' and
-                        self._gain_channel_A == 128):
-                    self._offset_A_128 = result
-                    return True
-                elif (self._current_channel == 'A' and
-                      self._gain_channel_A == 64):
-                    self._offset_A_64 = result
-                    return True
-                elif self._current_channel == 'B':
-                    self._offset_B = result
-                    return True
-                else:
-                    if self._debug_mode:
-                        print('Cannot zero() channel and gain mismatch.\n' \
-                              + 'current channel: ' + str(self._current_channel) \
-                              + 'gain A: ' + str(self._gain_channel_A) + '\n')
-                    return False
-            else:
-                if self._debug_mode:
-                    print('zero() got False back.\n')
-                return False
-        else:
-            raise ValueError('In function "zero" parameter "times" can be in range 1 up to 99. ' \
-                             + 'I have got: ' + str(times) + '\n')
+        # Setup the GPIO Pin as input
+        GPIO.setup(self.DOUT, GPIO.IN)
 
-    ############################################################
-    # set offset function sets desired offset for particular   #
-    # channel and gain. By default it sets offset for current  #
-    # channel and gain.					   #
-    # INPUTS: offset, channel (a|A|b|B), gain (128|64)	   #
-    # OUTPUTS: BOOL 	# return true it is ok		   #
-    ############################################################
-    def set_offset(self, offset, channel='', gain_A=0):
-        if isinstance(offset, int):
-            if channel == 'A' and gain_A == 128:
-                self._offset_A_128 = offset
-                return True
-            elif channel == 'A' and gain_A == 64:
-                self._offset_A_64 = offset
-                return True
-            elif channel == 'B':
-                self._offset_B = offset
-                return True
-            else:
-                if self._current_channel == 'A' and self._gain_channel_A == 128:
-                    self._offset_A_128 = offset
-                    return True
-                elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                    self._offset_A_64 = offset
-                    return True
-                else:
-                    self._offset_B = offset
-                    return True
-        else:
-            raise TypeError('function "set_offset" parameter "offset" has to be integer. ' \
-                            + 'I have got: ' + str(offset) + '\n')
-
-    ############################################################
-    # set_scale_ratio function sets the ratio for calculating  #
-    # weight in desired units. In order to find this ratio for #
-    # example to grams or kg. You must have known weight.      #
-    # INPUTS: channel('A'|'B'|empty), gain_A(128|64|empty),	   #
-    # 		scale_ratio(0.0..1,..)			   #
-    ############################################################
-    def set_scale_ratio(self, channel='', gain_A=0, scale_ratio=1.0):
-        if channel == 'A' and gain_A == 128:
-            self._scale_ratio_A_128 = scale_ratio
-            return True
-        elif channel == 'A' and gain_A == 64:
-            self._scale_ratio_A_64 = scale_ratio
-            return True
-        elif channel == 'B':
-            self._scale_ratio_B = scale_ratio
-            return True
-        else:
-            if self._current_channel == 'A' and self._gain_channel_A == 128:
-                self._scale_ratio_A_128 = scale_ratio
-                return True
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                self._scale_ratio_A_64 = scale_ratio
-                return True
-            else:
-                self._scale_ratio_B = scale_ratio
-                return True
-
-    ############################################################
-    # set_pstdev_filter function is for turning on and off 	   #
-    # population standard deviation filter.			   #
-    # INPUTS: flag(BOOL)					   #
-    # OUTPUTS: BOOL 	# if True then it is executed ok   #
-    ############################################################
-    def set_pstdev_filter(self, flag=True):
-        if flag == False:
-            self._pstdev_filter = False
-            if self._debug_mode:
-                print('Population standard deviation filter DISABLED')
-            return True
-        elif flag == True:
-            self._pstdev_filter = True
-            if self._debug_mode:
-                print('Population standatd deviation filter ENABLED')
-            return True
-        else:
-            raise ValueError('In function "set_pstdev_filter" parameter "flag" can be only BOOL value.\n'
-                             + 'I have got: ' + str(flag) + '\n' )
-
-    ############################################################
-    # set_debug_mode function is for turning on and off 	   #
-    # debug mode.						   #
-    # INPUTS: flag(BOOL)					   #
-    # OUTPUTS: BOOL 	# if True then it is executed ok   #
-    ############################################################
-    def set_debug_mode(self, flag=False):
-        if flag == False:
-            self._debug_mode = False
-            print('Debug mode DISABLED')
-            return True
-        elif flag == True:
-            self._debug_mode = True
-            print('Debug mode ENABLED')
-            return True
-        else:
-            raise ValueError('In function "set_debug_mode" parameter "flag" can be only BOOL value.\n'
-                             + 'I have got: ' + str(flag) + '\n' )
-
-    ############################################################
-    # save last raw data does exactly how it looks.		   #
-    # If return False something is wrong. Try debug mode.	   #
-    # INPUTS: channel('A'|'B'), gain_A(64|128)		   #
-    # OUTPUTS: BOOL						   #
-    ############################################################
-    def _save_last_raw_data(self, channel, gain_A, data):
-        if channel == 'A' and gain_A == 128:
-            self._last_raw_data_A_128 = data
-        elif channel == 'A' and gain_A == 64:
-            self._last_raw_data_A_64 = data
-        elif channel == 'B':
-            self._last_raw_data_B = data
-        else:
-            return False
-
-    ############################################################
-    # _ready function check if data is prepared for reading.   #
-    # It returns Boolean value. True means that data is ready  #
-    # INPUTS: none						   #
-    # OUTPUTS: BOOL						   #
-    ############################################################
-    def _ready(self):
-        if GPIO.input(self._dout) == 0:	# if DOUT pin is low data is ready for reading
-            return True
-        else:
-            return False
-
-    ############################################################
-    # _set_channel_gain is called only from _read function.    #
-    # It finishes the data transmission for hx711 which sets   #
-    # the next required gain and channel.			   #
-    # If it returns True it is OK. 				   #
-    # INPUT: num (1|2|3)	# how many ones it sends	   #
-    # OUTPUTS: BOOL 					   #
-    ############################################################
-    def _set_channel_gain(self, num):
-        for i in range(num):
-            start_counter = time.perf_counter() # start timer now.
-            GPIO.output(self._pd_sck, True) # set high
-            GPIO.output(self._pd_sck, False) # set low
-            end_counter = time.perf_counter() # stop timer
-            if end_counter-start_counter >= 0.00006: # check if hx 711 did not turn off...
-                # if pd_sck pin is HIGH for 60 us and more than output info in debug mode.
-                if self._debug_mode:
-                    print('Not enough fast while setting gain and channel')
-                    print('Time elapsed: ' + str(end_counter - start_counter))
-                # hx711 has turned off. First few readings are inaccurate.
-                # Still, they can be used because they will get filtered out.
-                result = self.get_raw_data_mean(6) # set for the next reading.
-                if result == False:
-                    return False
-        return True
-
-    ############################################################
-    # _read function reads bits from hx711, converts to INT    #
-    # and validate the data. 				   #
-    # If it returns int it is OK. If False something is wrong  #
-    # INPUT: none						   #
-    # OUTPUTS: BOOL | INT 					   #
-    ############################################################
-    def _read(self):
-        GPIO.output(self._pd_sck, False) # start by setting the pd_sck to false
-        ready_counter = 0		# init the counter to 0
-        while (not self._ready() and ready_counter <= 40):
-            time.sleep(0.01)	# sleep for 10 ms because data is not ready
-            ready_counter += 1 	# increment counter
-            if ready_counter == 50: # if counter reached max value then return False
-                if self._debug_mode:
-                    print('self._read() not ready after 40 trials\n')
-                return False
-
-        # read first 24 bits of data
-        data_in = 0	# 2's complement data from hx 711
-        for i in range(24):
-            start_counter = time.perf_counter() 	# start timer
-            GPIO.output(self._pd_sck, True) 	# request next bit from hx 711
-            GPIO.output(self._pd_sck, False)
-            end_counter = time.perf_counter()	# stop timer
-            if end_counter - start_counter >= 0.00006: # check if the hx 711 did not turn off...
-                # if pd_sck pin is HIGH for 60 us and more than the HX 711 enters power down mode.
-                if self._debug_mode:
-                    print('Not enough fast while reading data')
-                    print ('Time elapsed: ' + str(end_counter - start_counter))
-                return False
-            # Shift the bits as they come to data_in variable.
-            # Left shift by one bit then bitwise OR with the new bit.
-            data_in = (data_in<<1) | GPIO.input(self._dout)
-
-        if self._wanted_channel == 'A' and self._gain_channel_A == 128:
-            if not self._set_channel_gain(1):	# send only one bit which is 1
-                return False			# return False because channel was not set properly
-            else:
-                self._current_channel = 'A'	# else set current channel variable
-                self._gain_channel_A = 128	# and gain
-        elif self._wanted_channel == 'A' and self._gain_channel_A == 64:
-            if not self._set_channel_gain(3):	# send three ones
-                return False			# return False because channel was not set properly
-            else:
-                self._current_channel = 'A'	# else set current channel variable
-                self._gain_channel_A = 64
-        else:
-            if  not self._set_channel_gain(2): 	# send two ones
-                return False			# return False because channel was not set properly
-            else:
-                self._current_channel = 'B'	# else set current channel variable
-
-        if self._debug_mode:	# print 2's complement value
-            print('Binary value as it has come: ' + str(bin(data_in)) + '\n')
-
-        #check if data is valid
-        if (data_in == 0x7fffff or 		# 0x7fffff is the highest possible value from hx711
-                data_in == 0x800000):	# 0x800000 is the lowest possible value from hx711
-            if self._debug_mode:
-                print('Invalid data detected: ' + str(data_in) + '\n')
-            return False			# rturn false because the data is invalid
-
-        # calculate int from 2's complement
-        signed_data = 0
-        if (data_in & 0x800000): # 0b1000 0000 0000 0000 0000 0000 check if the sign bit is 1. Negative number.
-            signed_data = -((data_in ^ 0xffffff) + 1) # convert from 2's complement to int
-        else:	# else do not do anything the value is positive number
-            signed_data = data_in
-
-        if self._debug_mode:
-            print('Converted 2\'s complement value: ' + str(signed_data) + '\n')
-
-        return signed_data
-
-    ############################################################
-    # get_raw_data_mean returns mean value of readings.	   #
-    # If return False something is wrong. Try debug mode.	   #
-    # INPUTS: times # how many times to read data. Default 1   #
-    # OUTPUTS: INT | BOOL					   #
-    ############################################################
-    def get_raw_data_mean(self, times=1):
-        backup_channel = self._current_channel 		# do backup of current channel befor reading for later use
-        backup_gain = self._gain_channel_A		# backup of gain channel A
-        if times > 0 and times < 100:		# check if times is in required range
-            data_list = []			# create empty list
-            for i in range(times):		# for number of times read and add up all readings.
-                data_list.append(self._read())	# append every read value to the list
-            if times > 2 and self._pstdev_filter:			# if times is > 2 filter the data
-                data_pstdev = stat.pstdev(data_list)	# calculate population standard deviation from the data
-                data_mean = stat.mean(data_list)	# calculate mean from the collected data
-                max_num = data_mean + data_pstdev	# calculate max number which is within pstdev
-                min_num = data_mean - data_pstdev	# calculate min number which is within pstdev
-                filtered_data = []			# create new list for filtered data
-
-                if data_pstdev <=100:			# is pstdev is less than 100 it is ok
-                    self._save_last_raw_data(backup_channel, backup_gain, data_mean)	# save last data
-                    return data_mean		# just return the calculated mean
-
-                for index,num in enumerate(data_list):	# now I know that pstdev is greater then iterate through the list
-                    if (num > min_num and num < max_num):	# check if the number is within pstdev
-                        filtered_data.append(num)	# then append to the filtered data list
-                if self._debug_mode:
-                    print('data_list: ' + str(data_list))
-                    print('filtered_data lsit: ' + str(filtered_data))
-                    print('pstdev data: ' + str(data_pstdev))
-                    print('pstdev filtered data: ' + str(stat.pstdev(filtered_data)))
-                    print('mean data_list: ' + str(stat.mean(data_list)))
-                    print('mean filtered_data: ' + str(stat.mean(filtered_data)))
-                f_data_mean = stat.mean(filtered_data)		# calculate mean from filtered data
-                self._save_last_raw_data(backup_channel, backup_gain, f_data_mean)	# save last data
-                return f_data_mean		# return mean from filtered data
-            else:
-                data_mean = stat.mean(data_list)		# calculate mean from the list
-                self._save_last_raw_data(backup_channel, backup_gain, data_mean)	# save last data
-                return data_mean		# times was 2 or less just return mean
-        else:
-            raise ValueError('function "get_raw_data_mean" parameter "times" has to be in range 1 up to 99.\n I have got: ' \
-                             + str(times))
-
-    ############################################################
-    # get_data_mean returns average value of readings minus    #
-    # offset for the particular channel which was read.	   #
-    # If return False something is wrong. Try debug mode.	   #
-    # INPUTS: times # how many times to read data. Default 1   #
-    # OUTPUTS: INT | BOOL					   #
-    ############################################################
-    def get_data_mean(self, times=1):
-        result = self.get_raw_data_mean(times)
-        if result != False:
-            if self._current_channel =='A' and self._gain_channel_A == 128:
-                return result- self._offset_A_128
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                return result - self._offset_A_64
-            else:
-                return result - self._offset_B
-        else:
-            return False
-
-    ############################################################
-    # get_weight_mean returns average value of readings minus  #
-    # offset divided by scale ratio for a particular channel   #
-    # and gain.						   #
-    # If return False something is wrong. Try debug mode.	   #
-    # INPUTS: times # how many times to read data. Default 1   #
-    # OUTPUTS: INT | BOOL 					   #
-    ############################################################
-    def get_weight_mean(self, times=1):
-        result = self.get_raw_data_mean(times)
-        if result != False:
-            if self._current_channel =='A' and self._gain_channel_A == 128:
-                return (result - self._offset_A_128) / self._scale_ratio_A_128
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                return (result - self._offset_A_64) / self._scale_ratio_A_64
-            else:
-                return (result - self._offset_B) / self._scale_ratio_B
-        else:
-            return False
-
-    ############################################################
-    # get current channel returns the value of currently	   #
-    # chosen channel					   #
-    # INPUTS: none						   #
-    # OUTPUTS: STRING('A'|'B')				   #
-    ############################################################
-    def get_current_channel(self):
-        return self._current_channel
-
-    ############################################################
-    # get pstdev filter status returns True if turned on.	   #
-    # INPUTS: none						   #
-    # OUTPUTS: INT						   #
-    ############################################################
-    def get_pstdev_filter_status(self):
-        return self._pstdev_filter
-
-    ############################################################
-    # get current gain A returns the value of current gain on  #
-    # the channel A						   #
-    # INPUTS: none						   #
-    # OUTPUTS: INT						   #
-    ############################################################
-    def get_current_gain_A(self):
-        return self._gain_channel_A
-
-    ############################################################
-    # get last raw data returns the last read data for a 	   #
-    # channel and gain. By default for currently chosen one.   #
-    # INPUTS: channel('A'|'B'), gain(64|128)		   #
-    # OUTPUTS: INT						   #
-    ############################################################
-    def get_last_raw_data(self, channel='', gain_A=0):
-        if channel == 'A' and gain_A == 128:
-            return self._last_raw_data_A_128
-        elif channel == 'A' and gain_A == 64:
-            return self._last_raw_data_A_64
-        elif channel == 'B':
-            return self._last_raw_data_B
-        else:
-            if self._current_channel == 'A' and self._gain_channel_A == 128:
-                return self._last_raw_data_A_128
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                return self._last_raw_data_A_64
-            else:
-                return self._last_raw_data_B
-
-    ############################################################
-    # get current offset returns the current offset for	   #
-    # a particular channel and gain. By default the currently  #
-    # chosen one.						   #
-    # INPUTS: Channel('A'|'B'), Gain(64|128)		   #
-    # OUTPUTS: INT						   #
-    ############################################################
-    def get_current_offset(self, channel='', gain_A=0):
-        if channel == 'A' and gain_A == 128:
-            return self._offset_A_128
-        elif channel == 'A' and gain_A == 64:
-            return self._offset_A_64
-        elif channel == 'B':
-            return self._offset_B
-        else:
-            if self._current_channel == 'A' and self._gain_channel_A == 128:
-                return self._offset_A_128
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                return self._offset_A_64
-            else:
-                return self._offset_B
-
-    ############################################################
-    # get current scale ratio returns the current scale ratio  #
-    # for a particular channel and gain. By default 	   #
-    # the currently chosen one.				   #
-    # INPUTS: Channel('A'|'B'), Gain(64|128)		   #
-    # OUTPUTS: INT						   #
-    ############################################################
-    def get_current_scale_ratio(self, channel='', gain_A=0):
-        if channel == 'A' and gain_A == 128:
-            return self._scale_ratio_A_128
-        elif channel == 'A' and gain_A == 64:
-            return self._scale_ratio_A_64
-        elif channel == 'B':
-            return self._scale_ratio_B
-        else:
-            if self._current_channel == 'A' and self._gain_channel_A == 128:
-                return self._scale_ratio_A_128
-            elif self._current_channel == 'A' and self._gain_channel_A == 64:
-                return self._scale_ratio_A_64
-            else:
-                return self._scale_ratio_B
-
-    ############################################################
-    # power down function turns off the hx711.		   #
-    # INPUTS: none						   #
-    # OUTPUTS: BOOL		# True then it is executed	   #
-    ############################################################
-    def power_down(self):
-        GPIO.output(self._pd_sck, False)
-        GPIO.output(self._pd_sck, True)
-        time.sleep(0.01)
-        return True
-
-    ############################################################
-    # power up function turns on the hx711.			   #
-    # INPUTS: none						   #
-    # OUTPUTS: BOOL 	# True then it is executed	   #
-    ############################################################
-    def power_up(self):
-        GPIO.output(self._pd_sck, False)
-        time.sleep(0.01)
-        return True
-
-    ############################################################
-    # reset function resets the hx711 and prepare it for 	   #
-    # the next reading.					   #
-    # INPUTS: none						   #
-    # OUTPUTS: BOOL 	# True then it is executed	   #
-    ############################################################
-    def reset(self):
-        self.power_down()
+        # Power up the chip
         self.power_up()
-        result = self.get_raw_data_mean(6)
-        if result != False:
-            return True
-        else:
-            return False
+        self.set_gain(gain)
+
+    def set_gain(self, gain=128):
+
+        try:
+            if gain is 128:
+                self.GAIN = 3
+            elif gain is 64:
+                self.GAIN = 2
+            elif gain is 32:
+                self.GAIN = 1
+        except:
+            self.GAIN = 3  # Sets default GAIN at 128
+
+        GPIO.output(self.PD_SCK, False)
+        self.read()
+
+    def set_scale(self, scale):
+        """
+        Set scale
+        :param scale, scale
+        """
+        self.SCALE = scale
+
+    def set_offset(self, offset):
+        """
+        Set the offset
+        :param offset: offset
+        """
+        self.OFFSET = offset
+
+    def get_scale(self):
+        """
+        Returns value of scale
+        """
+        return self.SCALE
+
+    def get_offset(self):
+        """
+        Returns value of offset
+        """
+        return self.OFFSET
+
+    def read(self):
+        """
+        Read data from the HX711 chip
+        :param void
+        :return reading from the HX711
+        """
+
+        # Control if the chip is ready
+        while not (GPIO.input(self.DOUT) == 0):
+            # Uncommenting the print below results in noisy output
+            # print("No input from HX711.")
+            pass
+
+        # Original C source code ported to Python as described in datasheet
+        # https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
+        # Output from python matched the output of
+        # different HX711 Arduino library example
+        # Lastly, behaviour matches while applying pressure
+        # Please see page 8 of the PDF document
+
+        count = 0
+
+        for i in range(24):
+            GPIO.output(self.PD_SCK, True)
+            count = count << 1
+            GPIO.output(self.PD_SCK, False)
+            if(GPIO.input(self.DOUT)):
+                count += 1
+
+        GPIO.output(self.PD_SCK, True)
+        count = count ^ 0x800000
+        GPIO.output(self.PD_SCK, False)
+
+        # set channel and gain factor for next reading
+        for i in range(self.GAIN):
+            GPIO.output(self.PD_SCK, True)
+            GPIO.output(self.PD_SCK, False)
+
+        return count
+
+    def read_average(self, times=16):
+        """
+        Calculate average value from
+        :param times: measure x amount of time to get average
+        """
+        sum = 0
+        for i in range(times):
+            sum += self.read()
+        return sum / times
+
+    def get_grams(self, times=16):
+        """
+        :param times: Set value to calculate average,
+        be aware that high number of times will have a
+        slower runtime speed.
+        :return float weight in grams
+        """
+        value = (self.read_average(times) - self.OFFSET)
+        grams = (value / self.SCALE)
+        return grams
+
+    def tare(self, times=16):
+        """
+        Tare functionality fpr calibration
+        :param times: set value to calculate average
+        """
+        sum = self.read_average(times)
+        self.set_offset(sum)
+
+    def power_down(self):
+        """
+        Power the chip down
+        """
+        GPIO.output(self.PD_SCK, False)
+        GPIO.output(self.PD_SCK, True)
+
+    def power_up(self):
+        """
+        Power the chip up
+        """
+        GPIO.output(self.PD_SCK, False)

@@ -7,7 +7,7 @@ class Scale:
     def __init__(self):
         self.config = Config()  # config init
         self.config_data = self.config.get_config_data()
-        self.hx = HX711(dout_pin=5, pd_sck_pin=6, gain_channel_A=64, select_channel='A')  # initialize scale
+        self.hx = HX711(5, 6)  # initialize scale
         self.is_calibrated = self.config_data['SCALE'].getboolean("calibrated")  # check config if scale is calibrated
         self.ratio = 0  # scale ratio for calibration
         self.offset = 0
@@ -15,25 +15,28 @@ class Scale:
         self.result = 0
         self.data = 0
         if self.is_calibrated:
-            self.hx._offset_A_64 = float(self.config_data["SCALE"]['offset'])
+            self.hx.set_offset(float(self.config_data["SCALE"]['offset']))
             self.config_ratio = self.config_data["SCALE"]['ratio']  # get scale ratio of config
-            self.hx.set_scale_ratio(scale_ratio=float(self.config_ratio))
+            self.hx.set_scale(float(self.config_ratio))
 
     def setup(self):
         try:
-            self.data = self.hx.get_raw_data_mean(times=10)
-            self.result = self.hx.zero(times=10)
-            self.data = self.hx.get_data_mean(times=10)
+            self.offset = self.hx.read_average()
+            self.hx.set_offset(self.offset)
+            print("offset: {}".format(self.offset))
         except Exception as e:
             print("Scale or HX711 connected? : {0}".format(e))
 
     def calibrate(self, weight):
-        self.data = self.hx.get_data_mean(times=10)
         try:
-            self.value = float(weight)
-            self.ratio = self.data / self.value
-            self.hx.set_scale_ratio(scale_ratio=self.ratio)
-            self.config.set_scale(ratio=self.ratio, offset=self.hx.get_current_offset(), calibrated=1)
+            self.value = int(weight)
+            measured_weight = (self.hx.read_average() - self.hx.get_offset())
+            print("measured weight: {}".format(measured_weight))
+            self.ratio = int(measured_weight) / self.value
+            print("offset: {}".format(self.offset))
+            print("ratio: {}".format(self.ratio))
+            self.hx.set_scale(self.ratio)
+            self.config.set_scale(ratio=self.ratio, offset=self.hx.get_offset(), calibrated=1)
         except ValueError:
             print('Expected integer or float and I have got: '
                   + str(weight))
@@ -41,7 +44,7 @@ class Scale:
     def get_data(self):
         try:
             self.hx.power_up()
-            val = self.hx.get_weight_mean(5)
+            val = self.hx.get_grams()
             measure_weight = round((val / 1000), 2)
             self.hx.power_down()
             return measure_weight
@@ -57,9 +60,7 @@ class Scale:
         self.config.set_scale()
 
     def tare(self):
-        new_offset = self.hx.get_raw_data_mean(times=10)
-        self.config.set_offset(new_offset)
-        self.hx.zero()
+        pass
 
     @staticmethod
     def clean():

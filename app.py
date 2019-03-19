@@ -5,9 +5,6 @@ from main.application import Application
 from flask import request
 from threading import Thread
 from main.api_data import ApiData
-import subprocess
-
-restart = subprocess.Popen(["sudo", "/etc/init.d/nginx", "restart"], stdout=subprocess.PIPE)
 
 application = Application()
 
