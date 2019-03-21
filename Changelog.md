@@ -1,4 +1,4 @@
-# Changelog 1.1
+# 1.1
 ## Datalogger:
 * The software for collecting data is now decoupled from the web server
 * In the event of a crash, the logger restarts automatically
