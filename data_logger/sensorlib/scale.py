@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
-from sensorlib.hx711 import HX711
-from config.config import Config
+from data_logger.sensorlib.hx711 import HX711
+from data_logger.config.config import Config
 
 
 class Scale:
