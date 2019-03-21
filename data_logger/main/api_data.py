@@ -1,6 +1,7 @@
 from data_logger.sensorlib.dht22 import DHT22
 from data_logger.sensorlib.ds1820 import DS18B20
 from data_logger.config.config import Config
+from data_logger.main.logging import Log
 from threading import Thread
 
 
@@ -11,13 +12,13 @@ class ApiData:
         self.dht22 = DHT22(self.config_data['DHT22']['pin'])
         self.DS18B20 = DS18B20()
         self.json_data = {}
+        self.log = Log()
 
         self.ds18b20_temp = []
         self.dht22_data = []
 
-    @staticmethod
-    def error_message(device, exception_msg):
-        return "something went wrong by collecting the {0} dataset! Error: {1}".format(device, exception_msg)
+    def error_message(self,device, exception_msg):
+        self.log.write_log("something went wrong by collecting the {0} api data! Error: {1}".format(device, exception_msg))
 
     def get_data(self):
         ds18b20_thread = Thread(target=self.get_ds18b20_data)

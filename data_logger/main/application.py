@@ -4,6 +4,7 @@ from data_logger.main.dataset import Dataset
 from data_logger.main.log_data import LogData
 from data_logger.main.logging import Log
 import time
+import os
 
 
 class Application:
@@ -16,6 +17,8 @@ class Application:
         self.config_data = self.config.get_config_data()
         self.repost_seconds = int(self.config_data['INTERVAL']['repost_seconds'])
         self.app_wait_time = int(self.config_data['INTERVAL']['app_wait_seconds'])
+        self.dataset_taken = False
+        self.dataset_taken_counter = 0
 
         self.data = Dataset()  # collect all the data from sensors
         self.dataset = ""
@@ -27,10 +30,19 @@ class Application:
     def start(self):
         while True:
             try:
-                self.log.write_log("take dataset...")
-                self.take_dataset()
-                if not self.dataset:
-                    self.log.write_log("dataset not taken")
+                while not self.dataset_taken:
+                    self.log.write_log("take dataset...")
+                    self.dataset_taken_counter += 1
+                    self.take_dataset()
+                    if self.dataset_taken_counter == 3:
+                        self.log.write_log("to many failed datasets - reboot!")
+                        os.system('sudo reboot')
+
+                    if not self.dataset:
+                        self.dataset_taken = False
+                        self.log.write_log("dataset not taken - times {}".format(self.dataset_taken_counter))
+                    else:
+                        self.dataset_taken = True
                 # if stored data (/log/*.json) available, then try to send this data to the data warehouse
                 if self.log_data.has_log_files():
                     self.log.write_log("has log files...")
