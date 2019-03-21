@@ -1,30 +1,41 @@
 import time
 import sounddevice as sd
 import scipy.io.wavfile
-from sensorlib.scale import Scale
-from sensorlib.dht22 import DHT22
-from sensorlib.ds1820 import DS18B20
+from data_logger.sensorlib.scale import Scale
+from data_logger.sensorlib.dht22 import DHT22
+from data_logger.sensorlib.ds1820 import DS18B20
+from data_logger.config.config import Config
+from data_logger.api_plugin.sams_science import SamsApi
+from data_logger.main.logging import Log
 from numpy import median
-from config.config import Config
-from api_plugin.sams_science import SamsApi
 import datetime
 from scipy import signal
 import numpy as np
-from main.error import ErrorLog
 
 
 class Dataset:
     def __init__(self):
         self.config = Config()
         self.config_data = self.config.get_config_data()
-        self.dht22 = DHT22(int(self.config_data['DHT22']['pin']))
-        self.scale = Scale()
-        self.DS18B20 = DS18B20()
-        self.api = SamsApi()
-        self.error_log = ErrorLog()
+        try:
+            self.dht22 = DHT22(int(self.config_data['DHT22']['pin']))
+        except Exception as e:
+            self.log.write_log("Failed to initialize DHT22: {}".format(e))
+        try:
+            self.scale = Scale()
+        except Exception as e:
+            self.log.write_log("Failed to initialize scale: {}".format(e))
 
-        self.median_interval = 0
-        self.wait_time = 0
+        try:
+            self.DS18B20 = DS18B20()
+        except Exception as e:
+            self.log.write_log("Failed to initialize DS18B20: {}".format(e))
+
+        self.api = SamsApi()
+        self.log = Log()
+
+        self.median_interval = int(self.config_data['INTERVAL']['median'])
+        self.wait_time = int(self.config_data['INTERVAL']['wait_time_seconds'])
 
         self.dataset = []
         self.temp = []
@@ -45,18 +56,31 @@ class Dataset:
         return now.strftime('%Y-%m-%dT%H:%M:%S') + now.strftime('.%f')[:0] + 'Z'
 
     def error(self, device, error):
-        self.dataset.append(
-            {
-                "sourceId": "{0}-{1}".format(device, self.api.client_id),
-                "value": [
-                    {
-                        "ts": self.get_time(),
-                        "value": 0
-                    },
-                ]
-            }
-        )
-        self.error_log.write_log("something went wrong by collecting the {0} dataset! Error: {1}".format(device, error))
+        if not device == "audio":
+            self.dataset.append(
+                {
+                    "sourceId": "{0}-{1}".format(device, self.api.client_id),
+                    "value": [
+                        {
+                            "ts": self.get_time(),
+                            "value": 0
+                        },
+                    ]
+                }
+            )
+        else:
+            self.dataset.append(
+                {
+                    "sourceId": "{0}-{1}".format("audio", self.api.client_id),
+                    "value": [
+                        {
+                            "ts": self.get_time(),
+                            "value": [0, 0]
+                        },
+                    ]
+                }
+            )
+        self.log.write_log("something went wrong by collecting the {0} dataset! Error: {1}".format(device, error))
 
     def get_fft_data(self):
         n_window = pow(2, 12)
@@ -86,18 +110,9 @@ class Dataset:
                 }
             )
 
-        except Exception:
-            self.dataset.append(
-                {
-                    "sourceId": "{0}-{1}".format("audio", self.api.client_id),
-                    "value": [
-                        {
-                            "ts": self.get_time(),
-                            "value": [0, 0]
-                        },
-                    ]
-                }
-            )
+        except Exception as e:
+            self.error("audio", e)
+
 
         return True
 
@@ -110,7 +125,7 @@ class Dataset:
                     for i in range(self.median_interval):
                         value = self.DS18B20.tempC(x)
                         if value == 998 or value == 85.0:
-                            self.error_log.write_log(
+                            self.log.write_log(
                                 "DS18B20 does not work properly...")
                         else:
                             self.ds_temp.append(self.DS18B20.tempC(x))
@@ -201,15 +216,14 @@ class Dataset:
 
     def get_dataset(self):
         try:
-            self.dataset = []
-            self.median_interval = int(self.config_data['INTERVAL']['median'])
-            self.wait_time = int(self.config_data['INTERVAL']['wait_time_seconds'])
+            self.dataset[:] = []  # empty the dataset before take new data
 
             self.get_fft_data()
             self.get_scale_data()
             self.get_dht22_data()
             self.get_ds18b20_data()
+            return self.dataset
         except Exception as e:
-            self.error_log.write_log("Dataset error: {}".format(e))
+            self.log.write_log("Dataset error: {}".format(e))
+            return False
 
-        return self.dataset

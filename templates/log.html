@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <ul class="log">
+        {% for line in log_content %}
+            <li>
+                {{ line }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

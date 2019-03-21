@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if calibrated %}
-        <h1>Your system is ready to use!</h1>
-        <h1><i class="icon icon-check"></i></h1>
+    {% if test_scale %}
+        {% if calibrated %}
+            <h1>Your system is ready to use!</h1>
+            <h1><i class="icon icon-check"></i></h1>
 
+        {% else %}
+            <h1>Initializing</h1>
+            <p>Remove any items from scale.</p>
+            <p class="normal">Press "Start" when ready.</p>
+            <a href="/calibrate" class="button">Start</a>
+        {% endif %}
     {% else %}
-        <h1>Initializing</h1>
-        <p>Remove any items from scale.</p>
-        <p class="normal">Press "Start" when ready.</p>
-        <a href="/calibrate" class="button">Start</a>
-    {% endif %}
+    <h1 class="error"><i class="icon icon-alert-circle"></i>Please check your Scale</h1>
 {% endblock %}
 

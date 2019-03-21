@@ -189,3 +189,18 @@ div.dg-content {
   display: block;
   margin: 20px;
 }
+
+ul.log {
+  max-width: 320px;
+  text-align: left;
+  margin: 0 auto;
+  padding: 0;
+  li {
+    list-style: none;
+    padding: 5px;
+    &:nth-child(2n) {
+      border-bottom: 1px solid $darkGray;
+      margin-bottom: 10px;
+    }
+  }
+}

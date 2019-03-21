@@ -1,7 +1,8 @@
 import datetime
 
 
-class ErrorLog:
+# for debug purpose
+class Log:
     def __init__(self):
         self.name = "log"
 
@@ -12,7 +13,6 @@ class ErrorLog:
 
     def write_log(self, message):
         file = open("/var/www/upload/log.txt", "a+")
-        file.write("message: {} - time: {}\n".format(message, self.get_time()))
+        file.write("{}\n{}\n".format(message, self.get_time()))
         file.close()
-
         return True

@@ -3,7 +3,7 @@ import configparser
 
 class Config:
     def __init__(self):
-        self.config_file = '/var/www/upload/config/config.ini'
+        self.config_file = '/var/www/upload/data_logger/config/config.ini'
         self.config = configparser.ConfigParser()
         self.scale_section = "SCALE"
 
@@ -27,4 +27,3 @@ class Config:
                 self.config.write(configfile)
         except Exception as e:
             print(e)
-

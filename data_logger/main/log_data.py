@@ -1,17 +1,17 @@
 import json
 import os
 import time
-from api_plugin.sams_science import SamsApi
-from main.error import ErrorLog
+from data_logger.api_plugin.sams_science import SamsApi
+from data_logger.main.logging import Log
 
 
-class Log:
+class LogData:
     def __init__(self):
-        self.path = '/var/www/upload/log/'
+        self.path = '/var/www/upload/data_logger/log/'
         self.api = SamsApi()
         self.status = []
         self.files = os.listdir(self.path)
-        self.error = ErrorLog()
+        self.log = Log()
 
     def insert(self, json_data):
         files = os.listdir(self.path)
@@ -46,23 +46,22 @@ class Log:
 
     def post_log_files(self, dataset):
         try:
-            self.error.write_log("log dataset...")
+            self.log.write_log("log dataset...")
             self.insert(dataset)
-            self.list_dir()
             while self.has_log_files():
                 self.list_dir()
                 for x in self.files:
                     file = self.read_file(self.path + str(x))
-                    self.error.write_log("try to post data")
+                    self.log.write_log("try to post data")
                     if self.api.call(file) == 200:
-                        self.error.write_log("status code ok! Delete file...")
+                        self.log.write_log("status code ok! Delete file...")
                         os.remove(self.path + str(x))
                     if self.api.call(file) == 500:
-                        self.error.write_log("File corrupted! Delete file...")
+                        self.log.write_log("File corrupted! Delete file...")
                         os.remove(self.path + str(x))
                     time.sleep(5)
             return True
 
         except Exception as e:
             print(e)
-            self.error.write_log(e)
+            self.log.write_log(e)

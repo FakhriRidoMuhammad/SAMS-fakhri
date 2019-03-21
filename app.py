@@ -1,21 +1,13 @@
 from flask import Flask, render_template, jsonify, request
-from sensorlib.scale import Scale
-from main.application import Application
-from threading import Thread
-from main.api_data import ApiData
+from data_logger.sensorlib.scale import Scale
+from data_logger.main.logging import Log
+from data_logger.main.api_data import ApiData
 
-application = Application()
-
-
-def start_main_app():
-    application.start()
-
-
-scale = Scale()  # Scale for /api data
-data_log_thread = Thread(target=start_main_app)  # Thread to start main application
-
-if scale.calibrated():  # is scale calibrated, start the main application
-    data_log_thread.start()
+log = Log()
+try:
+    scale = Scale()  # Scale for /api data
+except Exception as e:
+    log.write_log("something went wrong with the scale!: {}".format(e))
 
 app = Flask(__name__)
 
@@ -23,7 +15,16 @@ app = Flask(__name__)
 @app.route('/')
 def start():
     cal = scale.calibrated()
-    return render_template('start.html', title="start", calibrated=cal)
+    test_scale = scale.read()
+    return render_template('start.html', title="start", calibrated=cal, test_scale=test_scale)
+
+
+@app.route('/log')  # reading log file
+def read_log():
+    file = open("/var/www/upload/log.txt", "r")
+    f = file.readlines()
+    print(f)
+    return render_template('log.html', title="debug mode", log_content=f)
 
 
 @app.route('/calibrate')  # start calibrate the scale
@@ -64,28 +65,29 @@ def settings():
 @app.route('/settings', methods=['POST'])
 def setting():
     # is tare or reset posted to settings?
+    error = False
     try:
         if request.form.get("reset") == "":
             scale.reset()
         if request.form.get("tare") == "":
             scale.tare()
 
-    except Exception as e:
-        print(e)
-
-    return render_template('settings.html', title="setting")
+    except Exception as error:
+        log.write_log("settings went wrong: {}".format(error))
+    return render_template('settings.html', title="setting", error=error)
 
 
 @app.route('/api')  # need api data to debug sensors
 def summary():
-    api_data = ApiData()
-    json_data = api_data.get_data()
-
+    json_data = ""
     try:
+        api_data = ApiData()
+        json_data = api_data.get_data()
         weight = scale.get_data()
         json_data["weight"] = "{0} {1}".format(weight, "KG")
-    except Exception:
-        json_data["weight"] = "scale not properly connected"
+    except Exception as error:
+        log.write_log("call /api went wrong: {}".format(error))
+        json_data["error"] = "{}".format(error)
 
     return jsonify(
         data=json_data,

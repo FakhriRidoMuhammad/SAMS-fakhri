@@ -27,6 +27,12 @@ class Scale:
         except Exception as e:
             print("Scale or HX711 connected? : {0}".format(e))
 
+    def read(self):
+        if self.hx.read_average < 1:
+            return False
+        else:
+            return True
+
     def calibrate(self, weight):
         try:
             self.value = int(weight)

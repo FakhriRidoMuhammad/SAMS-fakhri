@@ -3,8 +3,12 @@
     <nav class="breadcrumb">
         <a href="/" class="button-icon"><i class="icon icon-arrow-left"></i></a>
     </nav>
-    <h1>Save Offset</h1>
-    <p>Please place an item of known weight on the scale.</p>
-    <p class="normal">Press "Start" to continue when ready.</p>
-    <a href="/calibrate_offset" class="button">Save</a>
+    {% if offset %}
+        <h1>Save Offset</h1>
+        <p>Please place an item of known weight on the scale.</p>
+        <p class="normal">Press "Start" to continue when ready.</p>
+        <a href="/calibrate_offset" class="button">Save</a>
+    {% else %}
+        <p class="error">Offset is 0! Please Check the Scale...</p>
+    {% endif %}
 {% endblock %}
