@@ -68,6 +68,7 @@ class Application:
                             self.is_data_posted = self.api.call(self.dataset)
                             time.sleep(self.repost_seconds)
                 self.log.write_log("wait: {}".format(self.app_wait_time))
+                self.dataset_taken = False
                 time.sleep(int(self.app_wait_time))  # sleep X seconds before collecting the new data
             except Exception as e:
                 self.log.write_log(e)
