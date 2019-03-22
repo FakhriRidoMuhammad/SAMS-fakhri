@@ -15,8 +15,8 @@ app = Flask(__name__)
 @app.route('/')
 def start():
     cal = scale.calibrated()
-    test_scale = scale.read()
-    return render_template('start.html', title="start", calibrated=cal, test_scale=test_scale)
+    error = scale.has_error()
+    return render_template('start.html', title="start", calibrated=cal, error=error)
 
 
 @app.route('/log')  # reading log file
@@ -47,7 +47,7 @@ def quick_start():
 def quick_setup():
     scale.calibrate(10000)  # quick calibrate the scale with 10 Kg
     cal = scale.calibrated()
-    return render_template('calibrated.html', title="calibrate offset", calibrated=cal)
+    return render_template('calibrated.html', title="calibrate offset", calibrated=cal, error=scale.has_error())
 
 
 @app.route('/calibrate_offset', methods=['POST'])  # send known weight to calibrate
