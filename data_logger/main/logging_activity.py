@@ -8,7 +8,7 @@ class Log:
 
     @staticmethod
     def get_time():
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now()
         return now.strftime('%Y-%m-%dT%H:%M:%S') + now.strftime('.%f')[:0] + 'Z'
 
     def write_log(self, message):
