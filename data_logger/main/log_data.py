@@ -1,8 +1,8 @@
 import json
 import os
 import time
-from data_logger.api_plugin.sams_science import SamsApi
-from data_logger.main.logging import Log
+from api_plugin.sams_science import SamsApi
+from main.logging_activity import Log
 
 
 class LogData:

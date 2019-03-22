@@ -1,7 +1,7 @@
-from data_logger.sensorlib.dht22 import DHT22
-from data_logger.sensorlib.ds1820 import DS18B20
-from data_logger.config.config import Config
-from data_logger.main.logging import Log
+from sensorlib.dht22 import DHT22
+from sensorlib.ds1820 import DS18B20
+from helper.config import Config
+from helper.logging_activity import Log
 from threading import Thread
 
 

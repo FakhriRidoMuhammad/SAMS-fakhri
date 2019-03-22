@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request
-from data_logger.sensorlib.scale import Scale
-from data_logger.main.logging import Log
-from data_logger.main.api_data import ApiData
+from sensorlib.scale import Scale
+from helper.logging_activity import Log
+from helper.api_data import ApiData
 
 log = Log()
 try:

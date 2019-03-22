@@ -1,8 +1,8 @@
-from data_logger.api_plugin.sams_science import SamsApi
-from data_logger.config.config import Config
-from data_logger.main.dataset import Dataset
-from data_logger.main.log_data import LogData
-from data_logger.main.logging import Log
+from api_plugin.sams_science import SamsApi
+from config.config import Config
+from main.dataset import Dataset
+from main.log_data import LogData
+from main.logging_activity import Log
 import time
 import os
 
@@ -28,11 +28,14 @@ class Application:
         self.dataset = self.data.get_dataset()
 
     def start(self):
+        print("starting")
         while True:
             try:
                 while not self.dataset_taken:
                     self.log.write_log("take dataset...")
+                    print("take dataset")
                     self.dataset_taken_counter += 1
+                    print(self.dataset_taken_counter)
                     self.take_dataset()
                     if self.dataset_taken_counter == 3:
                         self.log.write_log("to many failed datasets - reboot!")

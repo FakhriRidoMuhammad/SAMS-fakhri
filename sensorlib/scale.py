@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 from sensorlib.hx711 import HX711
-from config.config import Config
+from helper.config import Config
 from numpy import median
 import time
 

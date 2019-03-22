@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from data_logger.main.application import Application
-from data_logger.config.config import Config
+from main.application import Application
+from config.config import Config
 
 config = Config()
 config_data = config.get_config_data()

@@ -1,12 +1,12 @@
 import time
 import sounddevice as sd
 import scipy.io.wavfile
-from data_logger.sensorlib.scale import Scale
-from data_logger.sensorlib.dht22 import DHT22
-from data_logger.sensorlib.ds1820 import DS18B20
-from data_logger.config.config import Config
-from data_logger.api_plugin.sams_science import SamsApi
-from data_logger.main.logging import Log
+from sensorlib.scale import Scale
+from sensorlib.dht22 import DHT22
+from sensorlib.ds1820 import DS18B20
+from config.config import Config
+from api_plugin.sams_science import SamsApi
+from main.logging_activity import Log
 from numpy import median
 import datetime
 from scipy import signal

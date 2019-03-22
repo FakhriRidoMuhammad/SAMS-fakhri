@@ -1,6 +1,6 @@
 import requests
 import configparser
-from data_logger.main.logging import Log
+from main.logging_activity import Log
 
 
 class SamsApi:
@@ -68,7 +68,7 @@ class SamsApi:
         if api_call == 401:
             second_call = self.send_data(payload, has_token=False)
             if second_call == 200:
-                return api_call
+                return second_call
             else:
                 self.log.write_log("send to api failed! Status code: {0}".format(second_call))
                 return False
